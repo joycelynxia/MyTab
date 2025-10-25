@@ -1,0 +1,59 @@
+.group-page-container {
+  margin: 0 auto;
+  justify-content: center;
+  align-items: center;
+  width: 50%;
+  margin-top: 5rem;
+}
+
+
+.group-name {
+  display: block;
+}
+
+.tabs{
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+}
+
+.tab {
+  padding: 8px 16px;
+  border-bottom: 2px solid transparent;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.tab:hover {
+  color: #95a9cc;
+}
+
+.tab.active {
+  border-bottom: 2px solid #95a9cc;
+  font-weight: bold;
+  /* color: #FB9CB5; */
+}
+
+ul {
+  padding: 0px;
+}
+
+.item {
+  background-color: white;
+  border-radius: 10px;
+  padding: 1rem;
+  margin-bottom: 10px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+
+h4, p {
+  margin: 0px;
+}
+
+.transfer-participants {
+  font-size: 13px;
+}

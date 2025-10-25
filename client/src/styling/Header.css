@@ -1,0 +1,30 @@
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  color:#8e9aaf;
+  border-bottom: 1px solid #8e9aaf;
+  background-color: white;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+}
+
+.app-name {
+  font-size: 20px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-style: italic;
+  font-weight: bold;
+  /* padding-bottom: 1rem; */
+}
+
+.app-name:hover {
+  cursor: pointer;
+}
+
+

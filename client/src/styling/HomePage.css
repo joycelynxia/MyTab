@@ -1,0 +1,66 @@
+.homepage-container {
+  margin: 0 auto;
+  justify-content: center;
+  width: 50%;
+  margin-top: 5rem;
+}
+
+.groups-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.group-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  background-color: #feeafa;
+  padding: 0.5rem;
+  font-weight: bold;
+  border-radius: 10px;
+}
+
+.group-title:hover {
+  cursor: pointer;
+}
+
+.group-title {
+  margin-left: 10px;
+}
+.title-create {
+  justify-content: space-between;
+  align-items: center;
+  display: flex;
+  margin-bottom: 2rem;
+}
+
+.title-create button {
+  border-radius: 10px;
+  background-color: white;
+  border-color: gray;
+  font-size: 15px;
+}
+
+.title {
+  font-weight: bold;
+  font-size: 20px;
+  /* background-color: white;
+  border-color: gray;
+  border-radius: 10px;
+  padding: 1rem; */
+  /* border-bottom: 2px solid white; */
+}
+
+.delete-btn {
+  /* background-color: white; */
+  /* border: 1px solid lightgray */
+  /* width: 20%; */
+}
+
+.delete-btn:hover {
+  background-color: rgb(234, 202, 227);
+
+}
+

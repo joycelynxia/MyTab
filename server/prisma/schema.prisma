@@ -1,0 +1,75 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Group {
+  id          String       @id @default(uuid())
+  groupName   String
+  createdAt   DateTime     @default(now())
+  members     Member[] 
+  expenses    Expense[] 
+  settlements Settlement[] 
+}
+
+model Member {
+  id         String @id @default(uuid())
+  groupId    String
+  group      Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  memberName String
+  balance    Float  @default(0)
+
+  // Expenses this member has paid
+  expensesPaid Expense[] @relation("Payer")
+
+  // Splits (expenses this member participates in)
+  splits Split[]
+
+  // Settlements
+  settlementsPaid     Settlement[] @relation("SettlementsPaid")
+  settlementsReceived Settlement[] @relation("SettlementsReceived")
+}
+
+model Expense {
+  id          String   @id @default(uuid())
+  groupId     String
+  group       Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  expenseName String
+  amount      Float
+  date        DateTime @default(now())
+  payerId     String
+  payer       Member   @relation("Payer", fields: [payerId], references: [id])
+
+  // Who owes how much
+  splits Split[]
+}
+
+model Split {
+  id        String  @id @default(uuid())
+  expenseId String
+  expense   Expense @relation(fields: [expenseId], references: [id])
+  memberId  String
+  memberName String
+  member    Member  @relation(fields: [memberId], references: [id])
+  amount    Float
+}
+
+model Settlement {
+  id      String   @id @default(uuid())
+  groupId String
+  group   Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  amount  Float
+  date    DateTime @default(now())
+  note    String?
+
+  payerId String
+  payer   Member @relation("SettlementsPaid", fields: [payerId], references: [id])
+
+  payeeId String
+  payee   Member @relation("SettlementsReceived", fields: [payeeId], references: [id])
+}

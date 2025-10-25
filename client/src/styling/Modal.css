@@ -1,0 +1,166 @@
+/* Modal overlay: darkens the background */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;   /* Full viewport width */
+  height: 100vh;  /* Full viewport height */
+  background: rgba(74, 74, 74, 0.5); /* semi-transparent dark */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  overflow: hidden;
+}
+
+/* Modal container */
+.modal {
+  background: #dee2ff;
+  position: relative;
+  padding: 1.5rem;
+  width: 90%;
+  max-width: 500px;
+  border-radius: 16px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+  animation: slideFadeIn 0.3s ease-in-out;
+}
+
+/* Slide/fade-in animation */
+@keyframes slideFadeIn {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Modal header */
+.modal h2 {
+  margin-top: 0;
+  font-size: 1.75rem;
+  text-align: center;
+  color: #333;
+}
+
+/* Labels */
+.modal label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #444;
+  font-weight: 500;
+}
+
+/* Inputs, including date and number */
+.modal input,
+.modal select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.65rem;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: white; /* white background for all inputs */
+  color: black;
+  appearance: auto; /* show date picker icon for date inputs */
+  -webkit-appearance: auto;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.modal input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+}
+
+
+
+.modal input:focus,
+.modal select:focus {
+  border-color: #4a90e2;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+/* Buttons */
+.modal .modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.modal button {
+  padding: 0.6rem 1rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  background-color: #4a90e2;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.modal button:hover {
+  background-color: #357ab8;
+}
+
+/* Close button (top right) */
+.modal .close-button {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 1.2rem;
+  background: transparent;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.modal .close-button:hover {
+  color: #000;
+}
+
+/* Multi-select react-select adjustments */
+.modal .react-select__control {
+  background-color: white;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.modal .react-select__control--is-focused {
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+.modal .react-select__menu {
+  z-index: 1050;
+}
+
+
+.add-member {
+  display: flex;
+  gap: 1rem;
+}
+
+.add-member button {
+  height: 41.3px;
+}
+
+.member-item {
+  padding: 5px;
+  display: flex;
+  align-items: center;
+}
+
+.member-item:hover {
+  cursor: pointer;
+}
+
+pre {
+  margin: 0;
+  font-size: 13px;
+}
