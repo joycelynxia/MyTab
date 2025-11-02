@@ -1,0 +1,69 @@
+.options {
+  display: flex;
+  flex-direction: column;
+  background-color: rgb(227, 227, 227);
+  width: 40%;
+  position: absolute;
+  right: 10px;
+  bottom: 225px;
+  border-radius: 10px;
+  border: 1px solid gray;
+}
+
+.option {
+  border-bottom: 1px solid gray;
+  padding: 10px;
+}
+
+#amounts {
+  border-bottom: 0;
+}
+
+.option:hover {
+  background-color: rgb(175, 175, 175);
+}
+
+.selected-option:hover,
+.options:hover {
+  cursor: pointer;
+}
+
+.title-line,
+.member-info {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  /* background-color: pink; */
+  width: 100%;
+}
+
+.split-members {
+  display: flex;
+  flex-direction: column;
+  /* gap: 8px; */
+  width: 100%;
+}
+
+.member-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* left content + right content */
+  /* border-bottom: 1px solid #ddd; */
+  /* padding: 4px 0; */
+}
+
+.left-side {
+  display: flex;
+  align-items: center;
+  gap: 6px; /* space between checkbox and label */
+}
+
+.checkbox {
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.amount {
+  text-align: right;
+  min-width: 60px;
+}

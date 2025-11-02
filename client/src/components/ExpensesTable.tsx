@@ -6,42 +6,40 @@ interface Props {
   expenses: Expense[];
 }
 
-const ExpensesTable: React.FC<Props> = ({
-  members,
-  expenses,
-}) => {
+const ExpensesTable: React.FC<Props> = ({ members, expenses }) => {
   return (
-    <table className="grid-table">
-  <thead>
-    <tr>
-      <th>Date</th>
-      <th>Description</th>
-      <th>Amount</th>
-      <th>Payer</th>
-      <th>Split Between</th>
-    </tr>
-  </thead>
-  <tbody>
-    {expenses.map((expense) => (
-      <tr key={expense.id}>
-        <td>{String(expense.date).split("T")[0]}</td>
-        <td>{expense.expenseName}</td>
-        <td>${expense.amount.toFixed(2)}</td>
-        <td>{getNameFromId(members, expense.payerId)}</td>
-        <td>
-          <div className="split-column">
-            {expense.splits.map((participant) => (
-              <div key={participant.memberId}>
-                {participant.memberName}: ${participant.amount.toFixed(2)}
-              </div>
-            ))}
-          </div>
-        </td>
-      </tr>
-    ))}
-  </tbody>
-</table>
-
+    <div className="table-container">
+      <table className="grid-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Description</th>
+            <th>Amount</th>
+            <th>Payer</th>
+            <th>Split Between</th>
+          </tr>
+        </thead>
+        <tbody>
+          {expenses.map((expense) => (
+            <tr key={expense.id}>
+              <td>{String(expense.date).split("T")[0]}</td>
+              <td>{expense.expenseName}</td>
+              <td>${expense.amount.toFixed(2)}</td>
+              <td>{getNameFromId(members, expense.payerId)}</td>
+              <td>
+                <div className="split-column">
+                  {expense.splits.map((participant) => (
+                    <div key={participant.memberId}>
+                      {participant.memberName}: ${participant.amount.toFixed(2)}
+                    </div>
+                  ))}
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 };
 

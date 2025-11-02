@@ -22,6 +22,7 @@ export interface Split {
   memberId: string;
   memberName?: string
   amount: number;
+  percent: number;
 }
 
 export interface Expense {

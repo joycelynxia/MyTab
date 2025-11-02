@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import type { Member, Split } from "../../types/types";
 import Select from "react-select";
 import "../../styling/Modal.css";
+import SplitOption from "../SplitOption";
 
 interface AddExpenseModalProps {
   onClose: () => void;
@@ -20,7 +21,10 @@ const AddExpenseModal = ({ onClose, onAdd, members }: AddExpenseModalProps) => {
   const [amount, setAmount] = useState<number>(0);
   const [date, setDate] = useState<Date>(new Date());
   const [payerId, setPayerId] = useState<string>("");
-  const [participants, setParticipants] = useState<Record<string, string>[]>([]);
+  const [participants, setParticipants] = useState<Record<string, string>[]>(
+    []
+  );
+  const [splitOption, setSplitOption] = useState<string | undefined>("equally");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,6 +44,8 @@ const AddExpenseModal = ({ onClose, onAdd, members }: AddExpenseModalProps) => {
     onAdd(expenseName, amount, date, payerId, splitBetween);
   };
 
+  // const handleSelectSplitOption = (selection)
+
   const handleSelectParticipants = (selectedOptions: any) => {
     const selectedMembers = selectedOptions
       ? selectedOptions.map((opt: any) => ({
@@ -55,6 +61,7 @@ const AddExpenseModal = ({ onClose, onAdd, members }: AddExpenseModalProps) => {
       memberId: participant.memberId,
       memberName: participant.memberName,
       amount: amount / participants.length,
+      percent: 100 / participants.length,
     }));
     return splits;
     // OR if you want to append to existing splits:
@@ -119,6 +126,18 @@ const AddExpenseModal = ({ onClose, onAdd, members }: AddExpenseModalProps) => {
             placeholder="select members"
             className="select-dropdown"
           />
+          <SplitOption members={members} total={amount} />
+
+          {/* <label>{splitOption}</label>
+          <Select
+            options={['equally', "as amounts", "as percentages"].map((m) => ({
+              value: m,
+              label: m,
+            }))}
+            onChange={(option) => setSplitOption(option?.value)}
+            placeholder="select split option"
+            className="split-option-dropdown"
+          /> */}
 
           <div className="modal-actions">
             <button type="submit" className="add-btn">

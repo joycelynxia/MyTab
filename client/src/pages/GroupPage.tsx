@@ -200,17 +200,17 @@ const GroupPage: React.FC = () => {
           formatBalanceString={formatBalanceString}
         />
       )}
-<button onClick={() => exportExpensesToExcel(expenses, members)}>export to excel</button>
       {tab === "expenses" && (
         <div>
           <button onClick={() => setTableView(!tableView)}>
             {tableView ? "list view" : "table view"}
           </button>
+          <button onClick={() => exportExpensesToExcel(expenses, members)}>
+            export to excel
+          </button>
+
           {tableView ? (
-            <ExpensesTable
-              members={members}
-              expenses={expenses}
-            />
+            <ExpensesTable members={members} expenses={expenses} />
           ) : (
             <ExpensesTab expenses={expenses} getNameFromId={getNameFromId} />
           )}
@@ -227,10 +227,7 @@ const GroupPage: React.FC = () => {
             {tableView ? "list view" : "table view"}
           </button>
           {tableView ? (
-            <SettlementsTable
-              members={members}
-              settlements={settlements}
-            />
+            <SettlementsTable members={members} settlements={settlements} />
           ) : (
             <SettlementsTab
               settlements={settlements}
