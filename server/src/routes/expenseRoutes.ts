@@ -52,6 +52,7 @@ router.post("/", async (req, res) => {
             memberId: split.memberId,
             memberName: split.memberName,
             amount: split.amount,
+            percent: split.percent,
           })),
         },
       },

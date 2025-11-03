@@ -8,6 +8,10 @@ npx prisma studio
 in terminal:
 psql -U joyce -h localhost -d mytab_app
 
+when changing prisma schema
+npx prisma migrate dev --name migration_name
+npx prisma generate 
+npx prisma migrate reset (for hard resets in development only)
 ----------------------
 features to add
 balance tab

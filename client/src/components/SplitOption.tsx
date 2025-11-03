@@ -5,15 +5,42 @@ import type { Member, Split } from "../types/types";
 interface Props {
   members: Member[];
   total: number;
+  participants: Split[];
+  setParticipants: React.Dispatch<React.SetStateAction<Split[]>>;
+  option: "equally" | "as percents" | "as amounts";
+  setOption: React.Dispatch<
+    React.SetStateAction<"equally" | "as percents" | "as amounts">
+  >;
 }
-const SplitOption: React.FC<Props> = ({ members, total }) => {
-  const [option, setOption] = useState<
-    "equally" | "as percents" | "as amounts"
-  >("equally");
+
+const SplitOption: React.FC<Props> = ({
+  members,
+  total,
+  participants,
+  setParticipants,
+  option,
+  setOption,
+}) => {
+  // const [option, setOption] = useState<
+  //   "equally" | "as percents" | "as amounts"
+  // >("equally");
   const [showOptions, setShowOptions] = useState<boolean>(false);
-  const [participants, setParticipants] = useState<Split[]>([]);
-  const [amount, setAmount] = useState<number>(0);
-  const [percent, setPercent] = useState<number>(0);
+  // const [participants, setParticipants] = useState<Split[]>([]);
+  // const [runningTotalAmount, setRunningTotalAmount] = useState<number>(0);
+  // const [runningTotalPercent, setRunningTotalPercent] = useState<number>(100);
+
+  useEffect(() => {
+    if (!members || members.length === 0) return;
+
+    setParticipants(
+      members.map((m) => ({
+        memberId: m.id,
+        memberName: m.memberName,
+        amount: total / members.length,
+        percent: 100 / members.length,
+      }))
+    );
+  }, [total, members]);
 
   const handleSetEqually = () => {
     setOption("equally");
@@ -30,40 +57,49 @@ const SplitOption: React.FC<Props> = ({ members, total }) => {
 
   const handleSetPercents = () => {
     setOption("as percents");
-    setParticipants((prev) =>
-      prev.map((m) => ({
-        ...m,
-        // percent: 100 / prev.length,
-        amount: (total * m.percent) / 100,
-      }))
-    );
+    // setParticipants((prev) =>
+    //   prev.map((m) => ({
+    //     ...m,
+    //     // percent: 100 / prev.length,
+    //     amount: (total * m.percent) / 100,
+    //   }))
+    // );
     setShowOptions(false);
   };
 
   const handleSetAmounts = () => {
     setOption("as amounts");
-    setParticipants((prev) =>
-      prev.map((m) => ({
-        ...m,
-        percent: m.amount / total,
-        // amount: total / prev.length,
-      }))
-    );
+    // setParticipants((prev) =>
+    //   prev.map((m) => ({
+    //     ...m,
+    //     percent: m.amount / total,
+    //     // amount: total / prev.length,
+    //   }))
+    // );
     setShowOptions(false);
   };
 
   const handleSelectParticipants = (member: {
     id: string;
     memberName: string;
-    amount: number;
-    percent: number;
+    // amount: number;
+    // percent: number;
   }) => {
+    // console.log(member.amount, member.percent)
     setParticipants((prev) => {
-      const exists = prev.some((p) => p.memberId === member.id);
+      const memberToDelete = prev.find((p) => p.memberId === member.id);
+      if (memberToDelete) {
+        // Remove the member first
+        const remaining = prev.filter((p) => p.memberId !== member.id);
+        if (remaining.length === 0) return remaining;
+        const amountToDistribute = memberToDelete.amount / remaining.length;
+        const percentToDistribute = memberToDelete.percent / remaining.length;
 
-      if (exists) {
-        // Remove the participant
-        return prev.filter((p) => p.memberId !== member.id);
+        return remaining.map((p) => ({
+          ...p,
+          amount: p.amount + amountToDistribute,
+          percent: p.percent + percentToDistribute,
+        }));
       } else {
         // Add the participant
         return [
@@ -71,8 +107,8 @@ const SplitOption: React.FC<Props> = ({ members, total }) => {
           {
             memberId: member.id,
             memberName: member.memberName,
-            amount: member.amount,
-            percent: member.percent,
+            amount: 0,
+            percent: 0,
           },
         ];
       }
@@ -87,13 +123,21 @@ const SplitOption: React.FC<Props> = ({ members, total }) => {
     }
   };
 
-  //   useEffect(() => {
-  //   console.log("participants updated:", participants);
-  // }, [participants]);
-
   const getSplitAmount = (id: string) => {
     const member = participants.find((m) => m.memberId === id);
     return member?.amount.toFixed(2);
+  };
+
+  const handleAmountChange = (memberId: string, value: number) => {
+    setParticipants((prev) =>
+      prev.map((p) => (p.memberId === memberId ? { ...p, amount: value } : p))
+    );
+  };
+
+  const handlePercentChange = (memberId: string, value: number) => {
+    setParticipants((prev) =>
+      prev.map((p) => (p.memberId === memberId ? { ...p, percent: value } : p))
+    );
   };
 
   return (
@@ -130,34 +174,37 @@ const SplitOption: React.FC<Props> = ({ members, total }) => {
                 name="splitMembers"
                 value={m.id}
                 className="checkbox"
+                defaultChecked={true}
                 onChange={() =>
                   handleSelectParticipants({
                     id: m.id,
                     memberName: m.memberName,
-                    amount: 0,
-                    percent: 0,
+                    // amount: 0,
+                    // percent: 0,
                   })
                 }
               />
               <label htmlFor={`member-${m.id}`}>{m.memberName}</label>
             </div>
-            <span className="amount">${getSplitAmount(m.id) || 0.0}</span>
+            {option === "equally" && (
+              <span className="amount">${getSplitAmount(m.id) || 0.0}</span>
+            )}
+
             {option === "as amounts" && (
               <div>
                 <input
                   type="number"
                   id="amount"
                   name="memberAmount"
-                  value={amount}
-                  // className="checkbox"
-                  onChange={() =>
-                    handleSelectParticipants({
-                      id: m.id,
-                      memberName: m.memberName,
-                      amount: amount,
-                      percent: 0,
-                    })
+                  value={
+                    participants.find((p) => p.memberId === m.id)?.amount ?? ""
                   }
+                  onChange={(e) =>
+                    handleAmountChange(m.id, Number(e.target.value))
+                  }
+                  min="0"
+                  max={total}
+                  step="0.01"
                 />
               </div>
             )}
@@ -168,16 +215,15 @@ const SplitOption: React.FC<Props> = ({ members, total }) => {
                   type="number"
                   id="percent"
                   name="memberPercent"
-                  value={percent}
-                  // className="checkbox"
-                  onChange={() =>
-                    handleSelectParticipants({
-                      id: m.id,
-                      memberName: m.memberName,
-                      amount: 0,
-                      percent: percent,
-                    })
+                  value={
+                    participants.find((p) => p.memberId === m.id)?.percent ?? ""
                   }
+                  onChange={(e) =>
+                    handlePercentChange(m.id, Number(e.target.value))
+                  }
+                  min="0"
+                  max={"100"}
+                  step="0.01"
                 />
               </div>
             )}

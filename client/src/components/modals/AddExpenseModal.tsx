@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import type { Member, Split } from "../../types/types";
-import Select from "react-select";
+// import Select from "react-select";
 import "../../styling/Modal.css";
 import SplitOption from "../SplitOption";
 
@@ -21,13 +21,17 @@ const AddExpenseModal = ({ onClose, onAdd, members }: AddExpenseModalProps) => {
   const [amount, setAmount] = useState<number>(0);
   const [date, setDate] = useState<Date>(new Date());
   const [payerId, setPayerId] = useState<string>("");
-  const [participants, setParticipants] = useState<Record<string, string>[]>(
-    []
-  );
-  const [splitOption, setSplitOption] = useState<string | undefined>("equally");
+  // const [participants, setParticipants] = useState<Record<string, string>[]>(
+  //   []
+  // );
+  const [participants, setParticipants] = useState<Split[]>([]);
+  const [option, setOption] = useState<
+    "equally" | "as percents" | "as amounts"
+  >("equally");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log(option, participants);
 
     if (
       !expenseName.trim() ||
@@ -38,10 +42,41 @@ const AddExpenseModal = ({ onClose, onAdd, members }: AddExpenseModalProps) => {
       alert("please fill in all fields");
       return;
     }
-    const splitBetween = handleSplitBetween();
-    console.log(splitBetween);
+    const runningTotal = participants.reduce(
+      (sum, m) => sum + (m.amount ?? 0),
+      0
+    );
+    const totalPercent = participants.reduce(
+      (sum, m) => sum + (m.percent ?? 0),
+      0
+    );
+    if (runningTotal !== amount) {
+      alert("individual amounts do not add up to total");
+      return;
+    } else if (totalPercent !== 100) {
+      alert("percentages do not add up to 100%");
+      return;
+    }
+
+    let finalParticipants = participants;
+    // update percents to match amounts
+    if (option === "as amounts") {
+      finalParticipants = participants.map((m) => ({
+        ...m,
+        percent: (m.amount / amount) * 100,
+      }));
+    }
+    // update amounts to match percents
+    else if (option === "as percents") {
+      finalParticipants = participants.map((m) => ({
+        ...m,
+        amount: (amount * m.percent) / 100,
+      }));
+    }
+    setParticipants(finalParticipants);
+    console.log("final participants", finalParticipants);
     console.log("add fields filled - now adding expense");
-    onAdd(expenseName, amount, date, payerId, splitBetween);
+    onAdd(expenseName, amount, date, payerId, finalParticipants);
   };
 
   // const handleSelectSplitOption = (selection)
@@ -115,7 +150,7 @@ const AddExpenseModal = ({ onClose, onAdd, members }: AddExpenseModalProps) => {
             ))}
           </select>
 
-          <label>split evenly with</label>
+          {/* <label>split evenly with</label>
           <Select
             isMulti
             options={members.map((m) => ({
@@ -126,7 +161,15 @@ const AddExpenseModal = ({ onClose, onAdd, members }: AddExpenseModalProps) => {
             placeholder="select members"
             className="select-dropdown"
           />
-          <SplitOption members={members} total={amount} />
+          */}
+          <SplitOption
+            members={members}
+            total={amount}
+            participants={participants}
+            setParticipants={setParticipants}
+            option={option}
+            setOption={setOption}
+          />
 
           {/* <label>{splitOption}</label>
           <Select

@@ -57,6 +57,7 @@ model Split {
   memberName String
   member    Member  @relation(fields: [memberId], references: [id])
   amount    Float
+  percent   Float
 }
 
 model Settlement {
