@@ -1,13 +1,18 @@
+.selected-option-wrapper {
+  position: relative;
+}
+
 .options {
   display: flex;
   flex-direction: column;
   background-color: rgb(227, 227, 227);
-  width: 40%;
+  min-width: 120px;
   position: absolute;
-  right: 10px;
-  bottom: 225px;
+  right: 0;
+  bottom: calc(100% + 4px);
   border-radius: 10px;
   border: 1px solid gray;
+  z-index: 10;
 }
 
 .option {
@@ -66,4 +71,18 @@
 .amount {
   text-align: right;
   min-width: 60px;
+}
+
+.split-option-disabled .split-placeholder {
+  color: #999;
+  font-size: 0.9rem;
+}
+
+.split-members-disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.split-members-disabled .checkbox {
+  cursor: not-allowed;
 }

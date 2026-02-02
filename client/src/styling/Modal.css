@@ -15,14 +15,16 @@
 
 /* Modal container */
 .modal {
-  background: #dee2ff;
+  background-color: white;
   position: relative;
   padding: 1.5rem;
   width: 90%;
+  max-height: 80vh;
   max-width: 500px;
   border-radius: 16px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
   animation: slideFadeIn 0.3s ease-in-out;
+  overflow-y: auto;
 }
 
 /* Slide/fade-in animation */
@@ -95,16 +97,17 @@
 .modal button {
   padding: 0.6rem 1rem;
   font-size: 1rem;
-  border: none;
+  border: 1px solid #e8c4e0;
   border-radius: 8px;
-  background-color: #4a90e2;
-  color: #fff;
+  background-color: #FEEAFA;
+  color: #333;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, border-color 0.2s;
 }
 
 .modal button:hover {
-  background-color: #357ab8;
+  background-color: #f8d4ed;
+  border-color: #e8b4dc;
 }
 
 /* Close button (top right) */
@@ -165,3 +168,185 @@ pre {
   font-size: 13px;
 }
 
+/* Confirm delete modal */
+.confirm-message {
+  margin: 1rem 0;
+  color: #444;
+}
+
+.modal .delete-confirm-btn {
+  background-color: #FEEAFA;
+  border-color: #e8a0b8;
+}
+
+.modal .delete-confirm-btn:hover {
+  background-color: #f8d4ed;
+}
+
+.modal .cancel-btn {
+  background-color: #e3e3e3;
+  border-color: #c9c9c9;
+}
+
+.modal .cancel-btn:hover {
+  background-color: #c9c9c9;
+  border-color: #c9c9c9;
+}
+
+/* Receipt modal */
+.receipt-modal {
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.receipt-upload-section {
+  margin-bottom: 1.5rem;
+}
+
+.receipt-upload-label {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.receipt-file-input {
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.receipt-scanning {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0.5rem 0;
+}
+
+.receipt-error {
+  color: #c93c3c;
+  font-size: 0.9rem;
+  margin: 0.5rem 0;
+}
+
+.receipt-preview {
+  max-width: 100%;
+  max-height: 150px;
+  margin-top: 0.5rem;
+  border-radius: 8px;
+  border: 1px solid #e2e2e2;
+}
+
+.receipt-items-section {
+  margin-bottom: 1.5rem;
+}
+
+.receipt-items-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.add-item-btn {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.875rem;
+}
+
+.receipt-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.receipt-item-row {
+  display: grid;
+  grid-template-columns: 1fr 80px 100px 1fr auto;
+  gap: 0.5rem;
+  align-items: start;
+}
+
+.receipt-item-desc {
+  min-width: 0;
+}
+
+.receipt-item-amount {
+  width: 80px;
+}
+
+.receipt-item-mode {
+  width: 100px;
+}
+
+.receipt-item-assign {
+  min-width: 0;
+}
+
+.receipt-item-split {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.receipt-split-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.receipt-remove-btn {
+  padding: 0.25rem 0.5rem;
+  min-width: 32px;
+  background: transparent;
+  border: 1px solid #ccc;
+  color: #666;
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.receipt-remove-btn:hover {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.receipt-meta {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.receipt-meta label {
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.receipt-meta select,
+.receipt-meta input {
+  min-width: 120px;
+}
+
+@media (max-width: 600px) {
+  .receipt-item-row {
+    grid-template-columns: 1fr 70px auto;
+    grid-template-rows: auto auto;
+  }
+
+  .receipt-item-desc {
+    grid-column: 1 / -1;
+  }
+
+  .receipt-item-mode {
+    grid-column: 1;
+  }
+
+  .receipt-item-assign,
+  .receipt-item-split {
+    grid-column: 2 / -1;
+  }
+
+  .receipt-remove-btn {
+    grid-row: 1;
+    grid-column: -1;
+  }
+}

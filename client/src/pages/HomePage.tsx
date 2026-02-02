@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import AddGroupModal from "../components/modals/AddGroupModal";
+import ConfirmDeleteModal from "../components/modals/ConfirmDeleteModal";
 import type { Group } from "../types/types";
 import { useNavigate } from "react-router-dom";
 import "../styling/HomePage.css";
@@ -7,6 +8,7 @@ import { createMember } from "../api/members";
 
 const HomePage: React.FC = () => {
   const [openModal, setOpenModal] = useState(false);
+  const [groupToDelete, setGroupToDelete] = useState<Group | null>(null);
   const [groups, setGroups] = useState<Group[]>([]);
   const [currentMembers, setCurrentMembers] = useState<string[]>([]);
   const nav = useNavigate();
@@ -59,7 +61,6 @@ const HomePage: React.FC = () => {
   };
 
   const deleteGroup = async (groupId: string) => {
-    console.log('deleting group:', groupId)
     try {
       const res = await fetch(`http://localhost:3000/groups/${groupId}`, {
         method: "DELETE",
@@ -71,6 +72,7 @@ const HomePage: React.FC = () => {
       setGroups((prevGroups) =>
         prevGroups.filter((group) => group.id != groupId)
       );
+      setGroupToDelete(null);
     } catch (error) {
       console.error("error deleting group", error);
     }
@@ -82,20 +84,26 @@ const HomePage: React.FC = () => {
         <div>
           <div className="title-create">
             <div className="title">my tabs</div>
-            <button onClick={() => setOpenModal(true)}>new +</button>
+            <button className="new-btn" onClick={() => setOpenModal(true)}>new +</button>
           </div>
 
           <div className="groups-container">
             {groups.map((group) => (
-              <div className="group-item">
-                <div
-                  key={group.id}
-                  onClick={() => nav(`/groups/${group.id}`)}
-                  className="group-title"
+              <div
+                key={group.id}
+                className="group-item"
+                onClick={() => nav(`/groups/${group.id}`)}
+              >
+                <div className="group-title">{group.groupName}</div>
+                <button
+                  className="delete-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setGroupToDelete(group);
+                  }}
                 >
-                  {group.groupName}
-                </div>
-                <button className="delete-btn" onClick={() => deleteGroup(group.id)}>x</button>
+                  x
+                </button>
               </div>
             ))}
           </div>
@@ -111,6 +119,15 @@ const HomePage: React.FC = () => {
 
       {openModal && (
         <AddGroupModal onClose={() => setOpenModal(false)} onAdd={addGroup} />
+      )}
+
+      {groupToDelete && (
+        <ConfirmDeleteModal
+          title="Delete group?"
+          message={`Are you sure you want to delete "${groupToDelete.groupName}"? This cannot be undone.`}
+          onConfirm={() => deleteGroup(groupToDelete.id)}
+          onCancel={() => setGroupToDelete(null)}
+        />
       )}
     </div>
   );

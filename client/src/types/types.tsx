@@ -36,11 +36,20 @@ export interface Expense {
 }
 
 export interface Settlement {
-  id: string;
-  groupId: string;
+  id?: string;
+  groupId?: string;
   amount: number;
-  date: Date;
-  note: string;
+  date?: Date;
+  note?: string;
   payerId: string;
   payeeId: string;
+}
+
+export interface ReceiptLineItem {
+  id: string;
+  description: string;
+  amount: number;
+  splitMode: "assign" | "split";
+  assignedTo?: string; // memberId when splitMode is "assign"
+  splits: Split[]; // when splitMode is "split"
 }

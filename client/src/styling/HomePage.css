@@ -15,19 +15,16 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-
-  background-color: #feeafa;
+  background-color: #ffffff;
   padding: 0.5rem;
   font-weight: bold;
   border-radius: 10px;
-}
-
-.group-title:hover {
   cursor: pointer;
 }
 
 .group-title {
   margin-left: 10px;
+  flex: 1;
 }
 .title-create {
   justify-content: space-between;
@@ -54,13 +51,24 @@
 }
 
 .delete-btn {
-  /* background-color: white; */
-  /* border: 1px solid lightgray */
-  /* width: 20%; */
+  background-color: white;
+  /* border: 1px solid lightgray; */
+  border-radius: 100%;
+  width: 25px;
 }
 
 .delete-btn:hover {
-  background-color: rgb(234, 202, 227);
-
+  background-color: rgb(255, 239, 252);
 }
 
+/* .new-btn {
+  background-color: white;
+  border: 1px solid lightgray;
+  border-radius: 10px;
+  padding: 0.5rem 1rem;
+  font-size: 15px;
+} */
+
+.new-btn:hover {
+  background-color: rgb(255, 239, 252);
+}

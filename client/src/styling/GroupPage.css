@@ -1,27 +1,33 @@
 .group-page-container {
   margin: 0 auto;
-  justify-content: center;
-  align-items: center;
-  width: 50%;
+  width: 75vw;
+  max-width: 900px;
   margin-top: 5rem;
+  padding-bottom: 2rem;
 }
-
 
 .group-name {
   display: block;
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
 }
 
-.tabs{
+.tabs {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  cursor: pointer;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #e2e2e2;
 }
 
 .tab {
-  padding: 8px 16px;
+  padding: 10px 20px;
   border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
   transition: border-color 0.2s, color 0.2s;
+  cursor: pointer;
+  text-transform: capitalize;
+  font-size: 0.95rem;
 }
 
 .tab:hover {
@@ -30,30 +36,66 @@
 
 .tab.active {
   border-bottom: 2px solid #95a9cc;
-  font-weight: bold;
-  /* color: #FB9CB5; */
+  font-weight: 600;
+}
+
+.tab-content {
+  min-height: 200px;
+}
+
+.tab-content .grid-table {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* List/card content */
+.balances-container,
+.expenses-container,
+.settlements-container {
+  margin-top: 0;
 }
 
 ul {
-  padding: 0px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
 }
 
 .item {
   background-color: white;
   border-radius: 10px;
-  padding: 1rem;
+  padding: 1rem 1.25rem;
   margin-bottom: 10px;
-
   display: flex;
   align-items: center;
   justify-content: space-between;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
+.item:last-child {
+  margin-bottom: 0;
+}
 
 h4, p {
-  margin: 0px;
+  margin: 0;
 }
 
 .transfer-participants {
   font-size: 13px;
+}
+
+/* Primary action buttons in toolbar */
+.toolbar button:not(.view-toggle-btn) {
+  white-space: nowrap;
+  flex-shrink: 0;
+  height: 34px;
+  padding: 0 1rem;
+  font-size: 14px;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+}
+
+.toolbar .view-toggle {
+  flex-shrink: 0;
 }

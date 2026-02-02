@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import "../styling/GroupPage.css";
+import "../styling/SearchBar.css";
 import type { Member, Expense, Settlement, Group, Split } from "../types/types";
 import { useGroupData } from "../hooks/useGroupData";
 import { useExpenses } from "../hooks/useExpenses";
@@ -8,6 +9,7 @@ import { useSettlements } from "../hooks/useSettlements";
 import AddMemberModal from "../components/modals/AddMemberModal";
 import AddSettlementModal from "../components/modals/AddSettlementModal";
 import AddExpenseModal from "../components/modals/AddExpenseModal";
+import AddExpenseFromReceiptModal from "../components/modals/AddExpenseFromReceiptModal";
 import { useParams } from "react-router-dom";
 import { createMember } from "../api/members";
 import BalancesTab from "../components/tabs/BalancesTab";
@@ -19,7 +21,9 @@ import {
 } from "../utils/groupActions";
 import ExpensesTable from "../components/ExpensesTable";
 import SettlementsTable from "../components/SettlementsTable";
+import ViewToggle from "../components/ViewToggle";
 import { exportExpensesToExcel } from "../utils/exportToExcel";
+import { formatDate } from "../utils/formatStrings";
 
 const GroupPage: React.FC = () => {
   const { groupId } = useParams<{ groupId: string }>();
@@ -32,9 +36,13 @@ const GroupPage: React.FC = () => {
 
   const [openMemberModal, setOpenMemberModal] = useState(false);
   const [openExpenseModal, setOpenExpenseModal] = useState(false);
+  const [openReceiptModal, setOpenReceiptModal] = useState(false);
   const [openSettlementModal, setOpenSettlementModal] = useState(false);
 
-  const [tableView, setTableView] = useState(false);
+  const [expenseView, setExpenseView] = useState<"list" | "grid">("list");
+  const [settlementView, setSettlementView] = useState<"list" | "grid">("list");
+  const [expenseSearch, setExpenseSearch] = useState("");
+  const [settlementSearch, setSettlementSearch] = useState("");
   const [openMemberView, setOpenMemberView] = useState(false);
   const [openExpenseView, setOpenExpenseView] = useState(false);
   const [openSettlementView, setOpenSettlementView] = useState(false);
@@ -102,6 +110,41 @@ const GroupPage: React.FC = () => {
     setOpenExpenseModal(false);
   };
 
+  const createSettlement = async (
+    payerId: string,
+    payeeId: string,
+    amount: number,
+    note: string
+  ) => {
+    if (Math.round(amount * 100) === 0) return;
+
+    const res = await fetch(`http://localhost:3000/settlements`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ groupId, payerId, payeeId, amount, note }),
+    });
+
+    if (!res.ok) {
+      throw new Error("failed to create new settlement");
+    }
+
+    const data = await res.json();
+    const newSettlement: Settlement = {
+      id: data.id,
+      groupId: groupId!,
+      note,
+      payeeId,
+      payerId,
+      date: data.date,
+      amount,
+    };
+
+    setMembers((prev) =>
+      updateBalancesAfterSettlement(prev, payerId, payeeId, amount)
+    );
+    setSettlements((prev) => [...prev, newSettlement]);
+  };
+
   const addSettlement = async ({
     payerId,
     payeeId,
@@ -113,43 +156,8 @@ const GroupPage: React.FC = () => {
     amount: number;
     note: string;
   }) => {
-    console.log("adding new settlement to group");
-
     try {
-      console.log("inside try catch statement");
-      const res = await fetch(`http://localhost:3000/settlements`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ groupId, payerId, payeeId, amount, note }),
-      });
-      console.log("response status:", res.status);
-
-      if (!res.ok) {
-        throw new Error("failed to create new settlement");
-      }
-      console.log("wha the sfadg");
-
-      const data = await res.json();
-      console.log("added new settlement", data);
-
-      const newSettlement: Settlement = {
-        id: data.id,
-        groupId: groupId!,
-        note,
-        payeeId,
-        payerId,
-        date: data.date,
-        amount,
-      };
-
-      // update new balance on frontend
-      console.log("updating balance of payer and payee");
-      setMembers(
-        updateBalancesAfterSettlement(members, payerId, payeeId, amount)
-      );
-      console.log("updating settlements");
-      setSettlements((prevSettlements) => [...prevSettlements, newSettlement]);
-
+      await createSettlement(payerId, payeeId, amount, note);
       setOpenSettlementModal(false);
     } catch (error) {
       console.error(error);
@@ -157,10 +165,44 @@ const GroupPage: React.FC = () => {
   };
 
   const getNameFromId = (id: string) => {
-    // console.log("member id:", id);
     const member = members.find((m) => m.id === id);
     return member ? member.memberName : undefined;
   };
+
+  const filteredExpenses = useMemo(() => {
+    if (!expenseSearch.trim()) return expenses;
+    const term = expenseSearch.toLowerCase().trim();
+    return expenses.filter((expense) => {
+      const payerName = getNameFromId(expense.payerId)?.toLowerCase() ?? "";
+      const dateStr = formatDate(expense.date).toLowerCase();
+      return (
+        expense.expenseName.toLowerCase().includes(term) ||
+        payerName.includes(term) ||
+        expense.amount.toString().includes(term) ||
+        dateStr.includes(term)
+      );
+    });
+  }, [expenses, expenseSearch, members]);
+
+  const filteredSettlements = useMemo(() => {
+    if (!settlementSearch.trim()) return settlements;
+    const term = settlementSearch.toLowerCase().trim();
+    return settlements.filter((settlement) => {
+      const payerName = getNameFromId(settlement.payerId)?.toLowerCase() ?? "";
+      const payeeName = getNameFromId(settlement.payeeId)?.toLowerCase() ?? "";
+      const note = (settlement.note ?? "").toLowerCase();
+      const dateStr = settlement.date
+        ? formatDate(settlement.date).toLowerCase()
+        : "";
+      return (
+        note.includes(term) ||
+        payerName.includes(term) ||
+        payeeName.includes(term) ||
+        settlement.amount.toString().includes(term) ||
+        dateStr.includes(term)
+      );
+    });
+  }, [settlements, settlementSearch, members]);
 
   const formatBalanceString = (balance: number) => {
     if (balance < 0) {
@@ -193,50 +235,84 @@ const GroupPage: React.FC = () => {
       </div>
       {/* add member to group */}
       {tab === "balances" && (
-        <BalancesTab
-          members={members}
-          onAddMember={() => setOpenMemberModal(true)}
-          onViewMember={() => {}}
-          formatBalanceString={formatBalanceString}
-        />
+        <div className="tab-content">
+          <BalancesTab
+            members={members}
+            onAddMember={() => setOpenMemberModal(true)}
+            onViewMember={() => {}}
+            formatBalanceString={formatBalanceString}
+            onMarkAsPaid={(payerId, payeeId, amount) =>
+              createSettlement(payerId, payeeId, amount, "Settle up")
+            }
+          />
+        </div>
       )}
       {tab === "expenses" && (
-        <div>
-          <button onClick={() => setTableView(!tableView)}>
-            {tableView ? "list view" : "table view"}
-          </button>
-          <button onClick={() => exportExpensesToExcel(expenses, members)}>
-            export to excel
-          </button>
-
-          {tableView ? (
-            <ExpensesTable members={members} expenses={expenses} />
+        <div className="tab-content">
+          <div className="toolbar">
+            <div className="search-bar">
+              <input
+                type="search"
+                placeholder="Search expenses..."
+                value={expenseSearch}
+                onChange={(e) => setExpenseSearch(e.target.value)}
+                aria-label="Search expenses"
+              />
+            </div>
+            <ViewToggle view={expenseView} onViewChange={setExpenseView} />
+            <button onClick={() => exportExpensesToExcel(expenses, members)}>
+              export
+            </button>
+            <button onClick={() => setOpenReceiptModal(true)}>
+              add from receipt
+            </button>
+            <button onClick={() => setOpenExpenseModal(true)}>
+              + new expense
+            </button>
+          </div>
+          {expenseView === "grid" ? (
+            <ExpensesTable members={members} expenses={filteredExpenses} />
           ) : (
-            <ExpensesTab expenses={expenses} getNameFromId={getNameFromId} />
+            <ExpensesTab
+              expenses={filteredExpenses}
+              getNameFromId={getNameFromId}
+            />
           )}
-          <button onClick={() => setOpenExpenseModal(true)}>
-            + add expense
-          </button>
         </div>
       )}
 
       {/* manually settle */}
       {tab === "settlements" && (
-        <div>
-          <button onClick={() => setTableView(!tableView)}>
-            {tableView ? "list view" : "table view"}
-          </button>
-          {tableView ? (
-            <SettlementsTable members={members} settlements={settlements} />
+        <div className="tab-content">
+          <div className="toolbar">
+            <div className="search-bar">
+              <input
+                type="search"
+                placeholder="Search settlements..."
+                value={settlementSearch}
+                onChange={(e) => setSettlementSearch(e.target.value)}
+                aria-label="Search settlements"
+              />
+            </div>
+            <ViewToggle
+              view={settlementView}
+              onViewChange={setSettlementView}
+            />
+            <button onClick={() => setOpenSettlementModal(true)}>
+              + new settlement
+            </button>
+          </div>
+          {settlementView === "grid" ? (
+            <SettlementsTable
+              members={members}
+              settlements={filteredSettlements}
+            />
           ) : (
             <SettlementsTab
-              settlements={settlements}
+              settlements={filteredSettlements}
               getNameFromId={getNameFromId}
             />
           )}
-          <button onClick={() => setOpenSettlementModal(true)}>
-            + add settlement
-          </button>
         </div>
       )}
 
@@ -261,6 +337,23 @@ const GroupPage: React.FC = () => {
           }
           onClose={() => setOpenExpenseModal(false)}
           members={members}
+        />
+      )}
+
+      {openReceiptModal && groupId && (
+        <AddExpenseFromReceiptModal
+          onAdd={(expenseName, amount, date, payerId, splits) =>
+            addExpense({
+              expenseName,
+              amount,
+              date,
+              payerId,
+              splits,
+            })
+          }
+          onClose={() => setOpenReceiptModal(false)}
+          members={members}
+          groupId={groupId}
         />
       )}
 

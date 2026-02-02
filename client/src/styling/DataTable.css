@@ -1,15 +1,8 @@
-.table-container {
-  background-color: white;
-  border-radius: 10px;
-  padding: 10px;
-  min-width: min-content;
-}
-
 .grid-table {
-  /* width: 50%; */
+  /* width: 75vw; */
   border-collapse:collapse;
   font-family: Arial, sans-serif;
-  /* background-color: pink; */
+  background-color: white;
   border-radius: 10px;
   /* padding: 1rem; */
 }
@@ -24,9 +17,8 @@
 }
 
 /* Optional: fixed width for columns */
-
 .grid-table th:nth-child(1),
-.grid-table td:nth-child(1) { width: 150px; } /* Date */
+.grid-table td:nth-child(1) { width: 200px; } /* Date */
 .grid-table th:nth-child(2),
 .grid-table td:nth-child(2) { width: 200px; } /* Description */
 .grid-table th:nth-child(3),

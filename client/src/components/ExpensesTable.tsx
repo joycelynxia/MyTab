@@ -1,5 +1,5 @@
 import type { Expense, Member } from "../types/types";
-import { getNameFromId } from "../utils/formatStrings";
+import { formatDate, getNameFromId } from "../utils/formatStrings";
 import "../styling/DataTable.css";
 interface Props {
   members: Member[];
@@ -8,7 +8,6 @@ interface Props {
 
 const ExpensesTable: React.FC<Props> = ({ members, expenses }) => {
   return (
-    <div className="table-container">
       <table className="grid-table">
         <thead>
           <tr>
@@ -22,7 +21,7 @@ const ExpensesTable: React.FC<Props> = ({ members, expenses }) => {
         <tbody>
           {expenses.map((expense) => (
             <tr key={expense.id}>
-              <td>{String(expense.date).split("T")[0]}</td>
+              <td>{formatDate(expense.date)}</td>
               <td>{expense.expenseName}</td>
               <td>${expense.amount.toFixed(2)}</td>
               <td>{getNameFromId(members, expense.payerId)}</td>
@@ -39,7 +38,6 @@ const ExpensesTable: React.FC<Props> = ({ members, expenses }) => {
           ))}
         </tbody>
       </table>
-    </div>
   );
 };
 

@@ -42,6 +42,14 @@ const AddExpenseModal = ({ onClose, onAdd, members }: AddExpenseModalProps) => {
       alert("please fill in all fields");
       return;
     }
+
+    if (
+      participants.length === 1 &&
+      participants[0].memberId === payerId
+    ) {
+      alert("An expense cannot have only the payer in the split. Add at least one other person or remove the payer from the split.");
+      return;
+    }
     const runningTotal = participants.reduce(
       (sum, m) => sum + (m.amount ?? 0),
       0
@@ -77,30 +85,6 @@ const AddExpenseModal = ({ onClose, onAdd, members }: AddExpenseModalProps) => {
     console.log("final participants", finalParticipants);
     console.log("add fields filled - now adding expense");
     onAdd(expenseName, amount, date, payerId, finalParticipants);
-  };
-
-  // const handleSelectSplitOption = (selection)
-
-  const handleSelectParticipants = (selectedOptions: any) => {
-    const selectedMembers = selectedOptions
-      ? selectedOptions.map((opt: any) => ({
-          memberId: opt.value,
-          memberName: opt.label,
-        }))
-      : [];
-    setParticipants(selectedMembers);
-  };
-
-  const handleSplitBetween = () => {
-    const splits: Split[] = participants.map((participant) => ({
-      memberId: participant.memberId,
-      memberName: participant.memberName,
-      amount: amount / participants.length,
-      percent: 100 / participants.length,
-    }));
-    return splits;
-    // OR if you want to append to existing splits:
-    // setSplitBetween(prev => [...prev, ...newSplits]);
   };
 
   return (
@@ -150,18 +134,6 @@ const AddExpenseModal = ({ onClose, onAdd, members }: AddExpenseModalProps) => {
             ))}
           </select>
 
-          {/* <label>split evenly with</label>
-          <Select
-            isMulti
-            options={members.map((m) => ({
-              value: m.id,
-              label: m.memberName,
-            }))}
-            onChange={handleSelectParticipants}
-            placeholder="select members"
-            className="select-dropdown"
-          />
-          */}
           <SplitOption
             members={members}
             total={amount}
@@ -169,18 +141,8 @@ const AddExpenseModal = ({ onClose, onAdd, members }: AddExpenseModalProps) => {
             setParticipants={setParticipants}
             option={option}
             setOption={setOption}
+            disabled={!amount || amount <= 0}
           />
-
-          {/* <label>{splitOption}</label>
-          <Select
-            options={['equally', "as amounts", "as percentages"].map((m) => ({
-              value: m,
-              label: m,
-            }))}
-            onChange={(option) => setSplitOption(option?.value)}
-            placeholder="select split option"
-            className="split-option-dropdown"
-          /> */}
 
           <div className="modal-actions">
             <button type="submit" className="add-btn">

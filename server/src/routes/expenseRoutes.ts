@@ -34,7 +34,7 @@ router.get("/fromGroup/:groupId", async (req, res) => {
 router.post("/", async (req, res) => {
   try {
     console.log('creating expense')
-    const { groupId, expenseName, amount, payerId, splits } = req.body;
+    const { groupId, expenseName, amount, payerId, splits, receiptId } = req.body;
 
     if (!groupId || !expenseName || !amount || !payerId || !splits) {
       return res.status(400).json({ error: "mising required fields" });
@@ -47,6 +47,7 @@ router.post("/", async (req, res) => {
         expenseName,
         amount: parseFloat(amount),
         payerId,
+        receiptId: receiptId || null,
         splits: {
           create: splits.map((split: any) => ({
             memberId: split.memberId,

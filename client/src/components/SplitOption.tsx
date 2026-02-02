@@ -11,6 +11,7 @@ interface Props {
   setOption: React.Dispatch<
     React.SetStateAction<"equally" | "as percents" | "as amounts">
   >;
+  disabled?: boolean;
 }
 
 const SplitOption: React.FC<Props> = ({
@@ -20,14 +21,9 @@ const SplitOption: React.FC<Props> = ({
   setParticipants,
   option,
   setOption,
+  disabled = false,
 }) => {
-  // const [option, setOption] = useState<
-  //   "equally" | "as percents" | "as amounts"
-  // >("equally");
   const [showOptions, setShowOptions] = useState<boolean>(false);
-  // const [participants, setParticipants] = useState<Split[]>([]);
-  // const [runningTotalAmount, setRunningTotalAmount] = useState<number>(0);
-  // const [runningTotalPercent, setRunningTotalPercent] = useState<number>(100);
 
   useEffect(() => {
     if (!members || members.length === 0) return;
@@ -57,35 +53,18 @@ const SplitOption: React.FC<Props> = ({
 
   const handleSetPercents = () => {
     setOption("as percents");
-    // setParticipants((prev) =>
-    //   prev.map((m) => ({
-    //     ...m,
-    //     // percent: 100 / prev.length,
-    //     amount: (total * m.percent) / 100,
-    //   }))
-    // );
     setShowOptions(false);
   };
 
   const handleSetAmounts = () => {
     setOption("as amounts");
-    // setParticipants((prev) =>
-    //   prev.map((m) => ({
-    //     ...m,
-    //     percent: m.amount / total,
-    //     // amount: total / prev.length,
-    //   }))
-    // );
     setShowOptions(false);
   };
 
   const handleSelectParticipants = (member: {
     id: string;
     memberName: string;
-    // amount: number;
-    // percent: number;
   }) => {
-    // console.log(member.amount, member.percent)
     setParticipants((prev) => {
       const memberToDelete = prev.find((p) => p.memberId === member.id);
       if (memberToDelete) {
@@ -141,30 +120,36 @@ const SplitOption: React.FC<Props> = ({
   };
 
   return (
-    <div>
+    <div className={disabled ? "split-option-disabled" : ""}>
       <div className="title-line">
         <label>split</label>
-        <div
-          className="selected-option"
-          onClick={() => setShowOptions(!showOptions)}
-        >
-          {option}^
-        </div>
-        {showOptions && (
-          <div className="options">
-            <span className="option" onClick={handleSetEqually}>
-              equally
-            </span>
-            <span className="option" onClick={handleSetPercents}>
-              as percents
-            </span>
-            <span className="option" id="amounts" onClick={handleSetAmounts}>
-              as amounts
-            </span>
+        {disabled ? (
+          <span className="split-placeholder">Enter amount first</span>
+        ) : (
+          <div className="selected-option-wrapper">
+            {showOptions && (
+              <div className="options">
+                <span className="option" onClick={handleSetEqually}>
+                  equally
+                </span>
+                <span className="option" onClick={handleSetPercents}>
+                  as percents
+                </span>
+                <span className="option" id="amounts" onClick={handleSetAmounts}>
+                  as amounts
+                </span>
+              </div>
+            )}
+            <div
+              className="selected-option"
+              onClick={() => setShowOptions(!showOptions)}
+            >
+              {option}^
+            </div>
           </div>
         )}
       </div>
-      <div className="split-members">
+      <div className={`split-members ${disabled ? "split-members-disabled" : ""}`}>
         {members.map((m) => (
           <div key={m.id} className="member-row">
             <div className="left-side">
@@ -175,12 +160,11 @@ const SplitOption: React.FC<Props> = ({
                 value={m.id}
                 className="checkbox"
                 defaultChecked={true}
+                disabled={disabled}
                 onChange={() =>
                   handleSelectParticipants({
                     id: m.id,
                     memberName: m.memberName,
-                    // amount: 0,
-                    // percent: 0,
                   })
                 }
               />
@@ -205,6 +189,7 @@ const SplitOption: React.FC<Props> = ({
                   min="0"
                   max={total}
                   step="0.01"
+                  disabled={disabled}
                 />
               </div>
             )}
@@ -224,6 +209,7 @@ const SplitOption: React.FC<Props> = ({
                   min="0"
                   max={"100"}
                   step="0.01"
+                  disabled={disabled}
                 />
               </div>
             )}

@@ -2,4 +2,8 @@ node_modules
 # Keep environment variables out of version control
 .env
 
+# Google Cloud credentials (never commit)
+*-credentials.json
+google-credentials.json
+
 /src/generated/prisma

@@ -6,6 +6,7 @@ import groupRoutes from './routes/groupRoutes';
 import memberRoutes from './routes/memberRoutes'
 import expenseRoutes from './routes/expenseRoutes'
 import settlementRoutes from './routes/settlementRoutes'
+import receiptRoutes from './routes/receiptRoutes'
 
 dotenv.config();
 const app = express()
@@ -25,12 +26,13 @@ app.use(cors({
 }));
 
 
-app.use(express.json())
+app.use(express.json({ limit: "10mb" }))
 
 app.use('/groups', groupRoutes)
 app.use('/members', memberRoutes)
 app.use('/expenses', expenseRoutes)
 app.use('/settlements', settlementRoutes)
+app.use('/receipts', receiptRoutes)
 
 const PORT = process.env.PORT || 3000;
 

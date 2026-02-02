@@ -1,5 +1,5 @@
 import type { Member, Settlement } from "../types/types";
-import { getNameFromId } from "../utils/formatStrings";
+import { formatDate, getNameFromId } from "../utils/formatStrings";
 import "../styling/DataTable.css";
 interface Props {
   members: Member[];
@@ -24,7 +24,7 @@ const SettlementsTable: React.FC<Props> = ({
   <tbody>
     {settlements.map((settlement) => (
       <tr key={settlement.id}>
-        <td>{String(settlement.date).split("T")[0]}</td>
+        <td>{settlement.date ? formatDate(settlement.date) : ""}</td>
         <td>{settlement.note}</td>
         <td>${settlement.amount.toFixed(2)}</td>
         <td>{getNameFromId(members, settlement.payerId)}</td>
