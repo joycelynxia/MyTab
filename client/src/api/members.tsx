@@ -1,12 +1,8 @@
-// src/api/members.ts
-export const createMember = async (groupId: string, memberName: string) => {
-  console.log("adding new member to group");
+import { apiFetch } from "./client";
 
-  const res = await fetch(`http://localhost:3000/members`, {
+export const createMember = async (groupId: string, memberName: string) => {
+  const res = await apiFetch("/members", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
     body: JSON.stringify({ groupId, memberName }),
   });
 

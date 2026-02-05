@@ -25,9 +25,14 @@ import ViewToggle from "../components/ViewToggle";
 import { exportExpensesToExcel } from "../utils/exportToExcel";
 import { formatDate } from "../utils/formatStrings";
 
+type GroupRole = "admin" | "participant" | "viewer";
+
 const GroupPage: React.FC = () => {
   const { groupId } = useParams<{ groupId: string }>();
-  const group = useGroupData(groupId);
+  const group = useGroupData(groupId) as (Group & { myRole?: GroupRole; accessLevel?: "full" | "add_only"; shareToken?: string }) | undefined;
+  const accessLevel = group?.accessLevel ?? "full";
+  const canEdit = accessLevel === "full" || accessLevel === "add_only";
+  const canDelete = accessLevel === "full";
   const [members, setMembers] = useMembers(groupId);
   const [expenses, setExpenses] = useExpenses(groupId);
   const [settlements, setSettlements] = useSettlements(groupId);
@@ -80,11 +85,9 @@ const GroupPage: React.FC = () => {
     console.log("adding new expense to group");
 
     try {
-      const res = await fetch(`http://localhost:3000/expenses`, {
+      const { apiFetch } = await import("../api/client");
+      const res = await apiFetch("/expenses", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({ groupId, expenseName, amount, payerId, splits }),
       });
 
@@ -118,9 +121,9 @@ const GroupPage: React.FC = () => {
   ) => {
     if (Math.round(amount * 100) === 0) return;
 
-    const res = await fetch(`http://localhost:3000/settlements`, {
+    const { apiFetch } = await import("../api/client");
+    const res = await apiFetch("/settlements", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ groupId, payerId, payeeId, amount, note }),
     });
 
@@ -143,6 +146,45 @@ const GroupPage: React.FC = () => {
       updateBalancesAfterSettlement(prev, payerId, payeeId, amount)
     );
     setSettlements((prev) => [...prev, newSettlement]);
+  };
+
+  const deleteExpense = async (expenseId: string) => {
+    try {
+      const { apiFetch } = await import("../api/client");
+      const res = await apiFetch(`/expenses/${expenseId}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to delete");
+      const expense = expenses.find((e) => e.id === expenseId);
+      if (expense) {
+        setExpenses((prev) => prev.filter((e) => e.id !== expenseId));
+        setMembers((prev) =>
+          prev.map((m) => {
+            if (m.id === expense.payerId) return { ...m, balance: m.balance + expense.amount };
+            const split = expense.splits?.find((s) => s.memberId === m.id);
+            if (split) return { ...m, balance: m.balance - split.amount };
+            return m;
+          })
+        );
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const deleteSettlement = async (settlementId: string) => {
+    try {
+      const { apiFetch } = await import("../api/client");
+      const res = await apiFetch(`/settlements/${settlementId}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to delete");
+      const settlement = settlements.find((s) => s.id === settlementId);
+      if (settlement) {
+        setSettlements((prev) => prev.filter((s) => s.id !== settlementId));
+        setMembers((prev) =>
+          updateBalancesAfterSettlement(prev, settlement.payeeId, settlement.payerId, settlement.amount)
+        );
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const addSettlement = async ({
@@ -218,9 +260,26 @@ const GroupPage: React.FC = () => {
     console.log("viewing details for member");
   };
 
+  const inviteLink = group?.shareToken
+    ? `${window.location.origin}/groups/join/${group.shareToken}`
+    : "";
+
+  const copyInviteLink = () => {
+    if (inviteLink) {
+      navigator.clipboard.writeText(inviteLink);
+    }
+  };
+
   return (
     <div className="group-page-container">
-      <h3 className="group-name">{group?.groupName}</h3>
+      <div className="group-header-row">
+        <h3 className="group-name">{group?.groupName}</h3>
+        {inviteLink && (
+          <button className="copy-link-btn" onClick={copyInviteLink} title="Copy invite link">
+            Copy invite link
+          </button>
+        )}
+      </div>
 
       <div className="tabs">
         {["balances", "expenses", "settlements"].map((t) => (
@@ -238,12 +297,11 @@ const GroupPage: React.FC = () => {
         <div className="tab-content">
           <BalancesTab
             members={members}
-            onAddMember={() => setOpenMemberModal(true)}
+            onAddMember={canEdit ? () => setOpenMemberModal(true) : undefined}
             onViewMember={() => {}}
             formatBalanceString={formatBalanceString}
-            onMarkAsPaid={(payerId, payeeId, amount) =>
-              createSettlement(payerId, payeeId, amount, "Settle up")
-            }
+            onMarkAsPaid={canEdit ? (payerId, payeeId, amount) =>
+              createSettlement(payerId, payeeId, amount, "Settle up") : undefined}
           />
         </div>
       )}
@@ -263,19 +321,30 @@ const GroupPage: React.FC = () => {
             <button onClick={() => exportExpensesToExcel(expenses, members)}>
               export
             </button>
-            <button onClick={() => setOpenReceiptModal(true)}>
-              add from receipt
-            </button>
-            <button onClick={() => setOpenExpenseModal(true)}>
-              + new expense
-            </button>
+            {canEdit && (
+              <>
+                <button onClick={() => setOpenReceiptModal(true)}>
+                  add from receipt
+                </button>
+                <button onClick={() => setOpenExpenseModal(true)}>
+                  + new expense
+                </button>
+              </>
+            )}
           </div>
           {expenseView === "grid" ? (
-            <ExpensesTable members={members} expenses={filteredExpenses} />
+            <ExpensesTable
+              members={members}
+              expenses={filteredExpenses}
+              canDelete={canDelete}
+              onDeleteExpense={deleteExpense}
+            />
           ) : (
             <ExpensesTab
               expenses={filteredExpenses}
               getNameFromId={getNameFromId}
+              canDelete={canDelete}
+              onDeleteExpense={deleteExpense}
             />
           )}
         </div>
@@ -298,19 +367,25 @@ const GroupPage: React.FC = () => {
               view={settlementView}
               onViewChange={setSettlementView}
             />
-            <button onClick={() => setOpenSettlementModal(true)}>
-              + new settlement
-            </button>
+            {canEdit && (
+              <button onClick={() => setOpenSettlementModal(true)}>
+                + new settlement
+              </button>
+            )}
           </div>
           {settlementView === "grid" ? (
             <SettlementsTable
               members={members}
               settlements={filteredSettlements}
+              canDelete={canDelete}
+              onDeleteSettlement={deleteSettlement}
             />
           ) : (
             <SettlementsTab
               settlements={filteredSettlements}
               getNameFromId={getNameFromId}
+              canDelete={canDelete}
+              onDeleteSettlement={deleteSettlement}
             />
           )}
         </div>

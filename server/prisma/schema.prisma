@@ -8,13 +8,36 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id           String      @id @default(uuid())
+  email        String      @unique
+  passwordHash String
+  name         String
+  createdAt    DateTime    @default(now())
+  groupUsers   GroupUser[]
+}
+
+model GroupUser {
+  id        String   @id @default(uuid())
+  userId    String
+  groupId   String
+  role      String   // "admin" | "participant" | "viewer"
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, groupId])
+}
+
 model Group {
   id          String       @id @default(uuid())
   groupName   String
+  shareToken  String       @unique
   createdAt   DateTime     @default(now())
-  members     Member[] 
-  expenses    Expense[] 
-  settlements Settlement[] 
+  groupUsers  GroupUser[]
+  members     Member[]
+  expenses    Expense[]
+  settlements Settlement[]
   receipts    Receipt[]
 }
 
@@ -54,10 +77,10 @@ model Expense {
   date        DateTime @default(now())
   payerId     String
   payer       Member   @relation("Payer", fields: [payerId], references: [id])
+  addedById   String?
   receiptId   String?
   receipt     Receipt? @relation(fields: [receiptId], references: [id], onDelete: SetNull)
 
-  // Who owes how much
   splits Split[]
 }
 

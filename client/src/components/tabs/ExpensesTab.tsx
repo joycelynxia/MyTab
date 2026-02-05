@@ -3,11 +3,15 @@ import type { Expense } from "../../types/types";
 interface Props {
   expenses: Expense[];
   getNameFromId: (id: string) => string | undefined;
+  canDelete?: boolean;
+  onDeleteExpense?: (expenseId: string) => void;
 }
 
 const ExpensesTab: React.FC<Props> = ({
   expenses,
   getNameFromId,
+  canDelete,
+  onDeleteExpense,
 }) => (
   <div className="expenses-container">
     <ul>
@@ -20,7 +24,12 @@ const ExpensesTab: React.FC<Props> = ({
                 paid by {getNameFromId(expense.payerId)}
               </p>
             </div>
-            <h4 className="amount">${expense.amount}</h4>
+            <div className="expense-item-actions">
+              <h4 className="amount">${expense.amount}</h4>
+              {canDelete && onDeleteExpense && (
+                <button className="table-delete-btn" onClick={() => onDeleteExpense(expense.id)}>Delete</button>
+              )}
+            </div>
             {/* <p>{formatSplitWithString(expense.splits)}</p> */}
           </div>
         ))

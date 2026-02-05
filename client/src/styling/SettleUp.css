@@ -1,0 +1,163 @@
+/* Settle up modal */
+.settleup-modal {
+  background: white;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+.settleup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.settleup-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.settleup-close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: #666;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.settleup-close-btn:hover {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.settleup-subtitle {
+  margin: 0 0 1.25rem;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+/* Empty state */
+.settleup-empty {
+  text-align: center;
+  padding: 2.5rem 1rem;
+}
+
+.settleup-empty-icon {
+  color: #4ade80;
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.settleup-empty-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.settleup-empty-text {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #666;
+}
+
+/* Settlement list */
+.settleup-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.settleup-settlement-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: #f8f9fc;
+  border: 1px solid #e8ebff;
+  border-radius: 12px;
+  transition: box-shadow 0.2s;
+}
+
+.settleup-settlement-card:hover {
+  box-shadow: 0 2px 8px rgba(149, 169, 204, 0.2);
+}
+
+.settleup-settlement-flow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.settleup-person {
+  font-weight: 600;
+  color: #333;
+}
+
+.settleup-arrow {
+  flex-shrink: 0;
+  color: #95a9cc;
+}
+
+.settleup-amount {
+  font-weight: 700;
+  color: #a9689c;
+  font-size: 1rem;
+}
+
+.settleup-mark-btn {
+  flex-shrink: 0;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  background: #FEEAFA;
+  color: #333;
+  border: 1px solid #e8c4e0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.settleup-mark-btn:hover {
+  background: #f8d4ed;
+  border-color: #e8b4dc;
+}
+
+.settleup-footer {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e8e8e8;
+}
+
+.settleup-done-btn {
+  justify-content: center;
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  font-weight: 500;
+  background: #FEEAFA;
+  color: #333;
+  border: 1px solid #e8c4e0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.settleup-done-btn:hover {
+  background: #f8d4ed;
+  border-color: #e8b4dc;
+}

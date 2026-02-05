@@ -4,11 +4,15 @@ import "../styling/DataTable.css";
 interface Props {
   members: Member[];
   settlements: Settlement[];
+  canDelete?: boolean;
+  onDeleteSettlement?: (settlementId: string) => void;
 }
 
 const SettlementsTable: React.FC<Props> = ({
   members,
   settlements,
+  canDelete,
+  onDeleteSettlement,
 }) => {
   return (
     <table className="grid-table">
@@ -19,6 +23,7 @@ const SettlementsTable: React.FC<Props> = ({
       <th>Amount</th>
       <th>Paid By</th>
       <th>Received By</th>
+      {canDelete && <th></th>}
     </tr>
   </thead>
   <tbody>
@@ -29,6 +34,11 @@ const SettlementsTable: React.FC<Props> = ({
         <td>${settlement.amount.toFixed(2)}</td>
         <td>{getNameFromId(members, settlement.payerId)}</td>
         <td>{getNameFromId(members, settlement.payeeId)}</td>
+        {canDelete && onDeleteSettlement && settlement.id && (
+          <td>
+            <button className="table-delete-btn" onClick={() => onDeleteSettlement(settlement.id!)}>Delete</button>
+          </td>
+        )}
       </tr>
     ))}
   </tbody>

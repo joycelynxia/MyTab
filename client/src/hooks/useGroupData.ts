@@ -8,7 +8,7 @@ export const useGroupData = (groupId?: string) => {
     if (!groupId) return;
     const fetchGroup = async () => {
       try {
-        const res = await fetch(`http://localhost:3000/groups/${groupId}`);
+        const res = await (await import("../api/client")).apiFetch(`/groups/${groupId}`);
         if (!res.ok) throw new Error("Failed to fetch group");
         const data = await res.json();
         setGroup(data);

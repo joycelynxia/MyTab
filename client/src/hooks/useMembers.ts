@@ -8,7 +8,7 @@ export const useMembers = (groupId?: string) => {
     if (!groupId) return;
     const fetchMembers = async () => {
       try {
-        const res = await fetch(`http://localhost:3000/members/fromGroup/${groupId}`);
+        const res = await (await import("../api/client")).apiFetch(`/members/fromGroup/${groupId}`);
         if (!res.ok) throw new Error("Failed to fetch members");
         const data = await res.json();
         setMembers(Array.isArray(data) ? data : []);

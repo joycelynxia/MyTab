@@ -6,10 +6,34 @@
   padding-bottom: 2rem;
 }
 
+.group-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
 .group-name {
   display: block;
-  margin-bottom: 1.5rem;
+  margin: 0;
   font-size: 1.5rem;
+}
+
+.copy-link-btn {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  border: 1px solid #95a9cc;
+  border-radius: 8px;
+  background: white;
+  color: #95a9cc;
+  cursor: pointer;
+}
+
+.copy-link-btn:hover {
+  background: #95a9cc;
+  color: white;
 }
 
 .tabs {

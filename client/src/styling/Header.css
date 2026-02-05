@@ -27,4 +27,27 @@
   cursor: pointer;
 }
 
+.header-profile {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.header-username {
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.header-logout {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.85rem;
+  background: transparent;
+  border: 1px solid #e2e2e2;
+  color: #666;
+}
+
+.header-logout:hover {
+  background: #f5f5f5;
+  color: #333;
+}
 

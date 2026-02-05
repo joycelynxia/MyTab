@@ -4,9 +4,11 @@ import "../styling/DataTable.css";
 interface Props {
   members: Member[];
   expenses: Expense[];
+  canDelete?: boolean;
+  onDeleteExpense?: (expenseId: string) => void;
 }
 
-const ExpensesTable: React.FC<Props> = ({ members, expenses }) => {
+const ExpensesTable: React.FC<Props> = ({ members, expenses, canDelete, onDeleteExpense }) => {
   return (
       <table className="grid-table">
         <thead>
@@ -16,6 +18,7 @@ const ExpensesTable: React.FC<Props> = ({ members, expenses }) => {
             <th>Amount</th>
             <th>Payer</th>
             <th>Split Between</th>
+            {canDelete && <th></th>}
           </tr>
         </thead>
         <tbody>
@@ -34,6 +37,11 @@ const ExpensesTable: React.FC<Props> = ({ members, expenses }) => {
                   ))}
                 </div>
               </td>
+              {canDelete && onDeleteExpense && (
+                <td>
+                  <button className="table-delete-btn" onClick={() => onDeleteExpense(expense.id)}>Delete</button>
+                </td>
+              )}
             </tr>
           ))}
         </tbody>

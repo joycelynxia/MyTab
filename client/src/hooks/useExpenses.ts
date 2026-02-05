@@ -9,9 +9,8 @@ export const useExpenses = (groupId?: string) => {
 
     const fetchExpenses = async () => {
       try {
-        const res = await fetch(
-          `http://localhost:3000/expenses/fromGroup/${groupId}`
-        );
+        const { apiFetch } = await import("../api/client");
+        const res = await apiFetch(`/expenses/fromGroup/${groupId}`);
         if (!res.ok) throw new Error("Failed to fetch expenses");
         const data = await res.json();
         setExpenses(Array.isArray(data) ? data : []);

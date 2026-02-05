@@ -4,11 +4,15 @@ import { FaArrowRight } from "react-icons/fa";
 interface Props {
   settlements: Settlement[];
   getNameFromId: (id: string) => string | undefined;
+  canDelete?: boolean;
+  onDeleteSettlement?: (settlementId: string) => void;
 }
 
 const SettlementsTab: React.FC<Props> = ({
   settlements,
   getNameFromId,
+  canDelete,
+  onDeleteSettlement,
 }) => (
   <div className="settlements-container">
     <ul>
@@ -24,7 +28,12 @@ const SettlementsTab: React.FC<Props> = ({
                 </div>
               </div>
 
-              <h4>${settlement.amount}</h4>
+              <div className="expense-item-actions">
+                <h4>${settlement.amount}</h4>
+                {canDelete && onDeleteSettlement && settlement.id && (
+                  <button className="table-delete-btn" onClick={() => onDeleteSettlement(settlement.id)}>Delete</button>
+                )}
+              </div>
             </div>
           ))
         : "no settlements recorded"}

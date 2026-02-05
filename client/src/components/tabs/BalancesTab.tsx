@@ -3,10 +3,10 @@ import SettleUpButton from "../SettleUpButton";
 
 interface Props {
   members: Member[];
-  onAddMember: () => void;
+  onAddMember?: () => void;
   onViewMember: (id: string) => void;
   formatBalanceString: (balance: number) => string;
-  onMarkAsPaid: (payerId: string, payeeId: string, amount: number) => Promise<void>;
+  onMarkAsPaid?: (payerId: string, payeeId: string, amount: number) => Promise<void>;
 }
 
 const BalancesTab: React.FC<Props> = ({
@@ -19,8 +19,8 @@ const BalancesTab: React.FC<Props> = ({
   <>
     <div className="toolbar">
       <div className="toolbar-spacer" />
-      <SettleUpButton members={members} onMarkAsPaid={onMarkAsPaid} />
-      <button onClick={onAddMember}>+ add member</button>
+      {onMarkAsPaid && <SettleUpButton members={members} onMarkAsPaid={onMarkAsPaid} />}
+      {onAddMember && <button onClick={onAddMember}>+ add member</button>}
     </div>
     <div className="balances-container">
       <ul>

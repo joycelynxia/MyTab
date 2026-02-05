@@ -9,9 +9,8 @@ export const useSettlements = (groupId?: string) => {
 
     const fetchSettlements = async () => {
       try {
-        const res = await fetch(
-          `http://localhost:3000/settlements/fromGroup/${groupId}`
-        );
+        const { apiFetch } = await import("../api/client");
+        const res = await apiFetch(`/settlements/fromGroup/${groupId}`);
         if (!res.ok) throw new Error("Failed to fetch settlements");
         const data = await res.json();
         setSettlements(Array.isArray(data) ? data : []);

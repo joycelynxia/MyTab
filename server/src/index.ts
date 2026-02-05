@@ -1,7 +1,9 @@
 import express from 'express'
 import cors from 'cors'
+import cookieParser from 'cookie-parser'
 import dotenv from 'dotenv'
 import { PrismaClient } from './generated/prisma';
+import authRoutes from './routes/authRoutes';
 import groupRoutes from './routes/groupRoutes';
 import memberRoutes from './routes/memberRoutes'
 import expenseRoutes from './routes/expenseRoutes'
@@ -27,7 +29,9 @@ app.use(cors({
 
 
 app.use(express.json({ limit: "10mb" }))
+app.use(cookieParser(process.env.COOKIE_SECRET || "dev-cookie-secret-change-in-production"))
 
+app.use('/auth', authRoutes)
 app.use('/groups', groupRoutes)
 app.use('/members', memberRoutes)
 app.use('/expenses', expenseRoutes)

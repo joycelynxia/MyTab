@@ -14,22 +14,18 @@ const HomePage: React.FC = () => {
   const nav = useNavigate();
 
   useEffect(() => {
-    fetch(`http://localhost:3000/groups/all`)
-      .then((res) => res.json())
-      .then((data) => {
-        Array.isArray(data) ? setGroups(data) : setGroups([]);
-      })
-      .catch(() => setGroups([]));
-  });
+    (async () => {
+      const { apiFetch } = await import("../api/client");
+      const res = await apiFetch("/groups/all");
+      const data = res.ok ? await res.json() : [];
+      setGroups(Array.isArray(data) ? data : []);
+    })().catch(() => setGroups([]));
+  }, []);
 
-  // useEffect to load all groups
   const addGroup = async (groupName: string, memberNames: string[]) => {
-    console.log("creating new group");
-    const res = await fetch(`http://localhost:3000/groups`, {
+    const { apiFetch } = await import("../api/client");
+    const res = await apiFetch("/groups", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify({ groupName }),
     });
 
@@ -45,10 +41,11 @@ const HomePage: React.FC = () => {
       setCurrentMembers([...currentMembers, memberId]);
     });
 
-    const newGroup: Group = {
+    const newGroup: Group & { role?: string } = {
       id: groupId,
       groupName,
       members: currentMembers,
+      role: "admin",
     };
 
     console.log(newGroup);
@@ -62,9 +59,8 @@ const HomePage: React.FC = () => {
 
   const deleteGroup = async (groupId: string) => {
     try {
-      const res = await fetch(`http://localhost:3000/groups/${groupId}`, {
-        method: "DELETE",
-      });
+      const { apiFetch } = await import("../api/client");
+      const res = await apiFetch(`/groups/${groupId}`, { method: "DELETE" });
 
       if (!res.ok) {
         throw new Error("failed to delete group");
@@ -88,22 +84,24 @@ const HomePage: React.FC = () => {
           </div>
 
           <div className="groups-container">
-            {groups.map((group) => (
+            {groups.map((group: Group & { role?: string }) => (
               <div
                 key={group.id}
                 className="group-item"
                 onClick={() => nav(`/groups/${group.id}`)}
               >
                 <div className="group-title">{group.groupName}</div>
-                <button
-                  className="delete-btn"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setGroupToDelete(group);
-                  }}
-                >
-                  x
-                </button>
+                {group.role === "admin" && (
+                  <button
+                    className="delete-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setGroupToDelete(group);
+                    }}
+                  >
+                    x
+                  </button>
+                )}
               </div>
             ))}
           </div>
