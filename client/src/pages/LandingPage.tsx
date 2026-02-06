@@ -1,8 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import "../styling/LandingPage.css";
+import { API_BASE } from "../api/client";
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
+console.log(import.meta.env.VITE_API_URL);
+console.log(API_BASE);
 
   return (
     <div className="landing-page">
