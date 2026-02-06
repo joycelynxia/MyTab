@@ -168,6 +168,15 @@ pre {
   font-size: 13px;
 }
 
+.modal-error {
+  margin: 0 0 1rem;
+  padding: 0.75rem;
+  background: #fef2f2;
+  color: #c93c3c;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
 /* Confirm delete modal */
 .confirm-message {
   margin: 1rem 0;
@@ -191,6 +200,258 @@ pre {
 .modal .cancel-btn:hover {
   background-color: #c9c9c9;
   border-color: #c9c9c9;
+}
+
+/* Expense image upload */
+.expense-image-upload {
+  margin-bottom: 1rem;
+}
+
+.expense-image-upload label {
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.expense-image-upload input[type="file"] {
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.expense-image-previews {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.expense-image-preview-wrap {
+  position: relative;
+}
+
+.expense-image-preview {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #e2e2e2;
+}
+
+.expense-image-remove {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  font-size: 1.2rem;
+  line-height: 1;
+  border-radius: 50%;
+  border: 1px solid #ccc;
+  background: white;
+  color: #666;
+  cursor: pointer;
+}
+
+.expense-image-remove:hover {
+  background: #fee;
+  color: #c00;
+}
+
+/* Add group modal: toggle */
+.add-group-toggle {
+  display: flex;
+  gap: 0;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #e2e2e2;
+}
+
+.add-group-toggle-btn {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: none;
+  background: transparent;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.add-group-toggle-btn:hover {
+  color: #333;
+}
+
+.add-group-toggle-btn.active {
+  color: #95a9cc;
+  border-bottom-color: #95a9cc;
+}
+
+/* Add group modal: join section */
+.add-group-join-section {
+  margin-bottom: 1rem;
+}
+
+.add-group-join-section label {
+  display: block;
+  margin-bottom: 0.35rem;
+}
+
+.add-group-join-form {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.add-group-join-form input {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.add-group-join-btn {
+  flex-shrink: 0;
+}
+
+/* View expense modal */
+.view-expense-modal {
+  max-width: 480px;
+}
+
+.view-expense-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.view-expense-row {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 0.5rem;
+  align-items: start;
+}
+
+.view-expense-row dt {
+  font-weight: 600;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+.view-expense-row dd {
+  margin: 0;
+}
+
+.view-expense-images .view-expense-image-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* Slideshow */
+.view-expense-slideshow {
+  margin: 1rem 0;
+}
+
+.view-expense-slideshow-main {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.view-expense-slideshow-btn {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid #e2e2e2;
+  border-radius: 50%;
+  background: white;
+  color: #555;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.view-expense-slideshow-btn:hover {
+  background: #FEEAFA;
+  border-color: #e8c4e0;
+  color: #333;
+}
+
+.view-expense-slideshow-img-wrap {
+  flex: 1;
+  min-width: 0;
+  max-width: 280px;
+  display: block;
+}
+
+.view-expense-slideshow-img {
+  width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+  border-radius: 8px;
+  border: 1px solid #e2e2e2;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.view-expense-slideshow-img-wrap:hover .view-expense-slideshow-img {
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.3);
+}
+
+.view-expense-slideshow-indicator {
+  text-align: center;
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 0.5rem;
+}
+
+.view-expense-image-btn {
+  padding: 0;
+  margin: 0;
+  background: white;
+  /* background-color: white  ; */
+  border: none;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.view-expense-image-btn:hover .view-expense-image-preview {
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.3);
+}
+
+.view-expense-image-preview {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #e2e2e2;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.view-expense-lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  cursor: pointer;
+}
+
+.view-expense-lightbox-img {
+  max-width: 95vw;
+  max-height: 95vh;
+  object-fit: contain;
+  border-radius: 4px;
+  pointer-events: none;
 }
 
 /* Receipt modal */
@@ -394,4 +655,82 @@ pre {
     grid-row: 1;
     grid-column: -1;
   }
+}
+
+/* Member balance detail modal */
+.member-balance-modal {
+  max-width: 480px;
+}
+
+.member-balance-modal .modal-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.25rem;
+}
+
+.member-balance-modal .modal-header-row h2 {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.member-balance-summary {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 1.25rem;
+}
+
+.member-detail-section {
+  margin-bottom: 1.25rem;
+}
+
+.member-detail-section h3 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #666;
+  margin: 0 0 0.5rem;
+}
+
+.member-detail-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.member-detail-list li {
+  display: grid;
+  grid-template-columns: 80px 1fr auto;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 0.9rem;
+}
+
+.member-detail-list li:last-child {
+  border-bottom: none;
+}
+
+.member-detail-date {
+  color: #666;
+}
+
+.member-detail-desc {
+  color: #333;
+}
+
+.member-detail-amount {
+  font-weight: 500;
+  color: #2a7;
+}
+
+.member-detail-amount-negative {
+  color: #c33;
+}
+
+.member-detail-empty {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #888;
 }

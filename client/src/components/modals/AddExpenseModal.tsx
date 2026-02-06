@@ -4,6 +4,12 @@ import type { Member, Split } from "../../types/types";
 import "../../styling/Modal.css";
 import SplitOption from "../SplitOption";
 
+interface ImageItem {
+  id: string;
+  preview: string;
+  base64: string;
+}
+
 interface AddExpenseModalProps {
   onClose: () => void;
   onAdd: (
@@ -11,27 +17,29 @@ interface AddExpenseModalProps {
     amount: number,
     date: Date,
     payerId: string,
-    splitBetween: Split[]
+    splitBetween: Split[],
+    imageData?: string[]
   ) => void;
   members: Member[];
 }
+
+const EPSILON = 0.05; // tolerance for float comparison (rounding)
 
 const AddExpenseModal = ({ onClose, onAdd, members }: AddExpenseModalProps) => {
   const [expenseName, setExpenseName] = useState<string>("");
   const [amount, setAmount] = useState<number>(0);
   const [date, setDate] = useState<Date>(new Date());
   const [payerId, setPayerId] = useState<string>("");
-  // const [participants, setParticipants] = useState<Record<string, string>[]>(
-  //   []
-  // );
   const [participants, setParticipants] = useState<Split[]>([]);
   const [option, setOption] = useState<
     "equally" | "as percents" | "as amounts"
   >("equally");
+  const [images, setImages] = useState<ImageItem[]>([]);
+  const [error, setError] = useState<string>("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(option, participants);
+    setError("");
 
     if (
       !expenseName.trim() ||
@@ -39,7 +47,7 @@ const AddExpenseModal = ({ onClose, onAdd, members }: AddExpenseModalProps) => {
       !payerId ||
       participants.length === 0
     ) {
-      alert("please fill in all fields");
+      setError("Please fill in all fields");
       return;
     }
 
@@ -47,44 +55,76 @@ const AddExpenseModal = ({ onClose, onAdd, members }: AddExpenseModalProps) => {
       participants.length === 1 &&
       participants[0].memberId === payerId
     ) {
-      alert("An expense cannot have only the payer in the split. Add at least one other person or remove the payer from the split.");
-      return;
-    }
-    const runningTotal = participants.reduce(
-      (sum, m) => sum + (m.amount ?? 0),
-      0
-    );
-    const totalPercent = participants.reduce(
-      (sum, m) => sum + (m.percent ?? 0),
-      0
-    );
-    if (runningTotal !== amount) {
-      alert("individual amounts do not add up to total");
-      return;
-    } else if (totalPercent !== 100) {
-      alert("percentages do not add up to 100%");
+      setError("An expense cannot have only the payer in the split. Add at least one other person or remove the payer from the split.");
       return;
     }
 
-    let finalParticipants = participants;
-    // update percents to match amounts
-    if (option === "as amounts") {
-      finalParticipants = participants.map((m) => ({
+    const runningTotal = participants.reduce(
+      (sum, m) => sum + (Number(m.amount) || 0),
+      0
+    );
+    const totalPercent = participants.reduce(
+      (sum, m) => sum + (Number(m.percent) || 0),
+      0
+    );
+
+    if (
+      (option === "as amounts" || option === "equally") &&
+      Math.abs(runningTotal - amount) > EPSILON
+    ) {
+      setError("Individual amounts do not add up to the total amount");
+      return;
+    }
+    if (
+      option === "as percents" &&
+      Math.abs(totalPercent - 100) > EPSILON
+    ) {
+      setError("Percentages do not add up to 100%");
+      return;
+    }
+
+    let finalParticipants = [...participants];
+
+    // Update percents to match amounts (or amounts to match percents)
+    if (option === "as amounts" || option === "equally") {
+      finalParticipants = finalParticipants.map((m) => ({
         ...m,
-        percent: (m.amount / amount) * 100,
+        amount: Number(m.amount) || 0,
+        percent: (amount > 0 ? (Number(m.amount) || 0) / amount : 0) * 100,
+      }));
+    } else if (option === "as percents") {
+      finalParticipants = finalParticipants.map((m) => ({
+        ...m,
+        percent: Number(m.percent) || 0,
+        amount: (amount * (Number(m.percent) || 0)) / 100,
       }));
     }
-    // update amounts to match percents
-    else if (option === "as percents") {
-      finalParticipants = participants.map((m) => ({
-        ...m,
-        amount: (amount * m.percent) / 100,
-      }));
-    }
-    setParticipants(finalParticipants);
-    console.log("final participants", finalParticipants);
-    console.log("add fields filled - now adding expense");
-    onAdd(expenseName, amount, date, payerId, finalParticipants);
+    const imageData = images.length > 0 ? images.map((img) => img.base64) : undefined;
+    onAdd(expenseName, amount, date, payerId, finalParticipants, imageData);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files?.length) return;
+    Array.from(files).forEach((file) => {
+      if (!file.type.startsWith("image/")) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        const dataUrl = reader.result as string;
+        const base64 = dataUrl.split(",")[1];
+        if (!base64) return;
+        setImages((prev) => [
+          ...prev,
+          { id: `${Date.now()}-${Math.random()}`, preview: dataUrl, base64 },
+        ]);
+      };
+      reader.readAsDataURL(file);
+    });
+    e.target.value = "";
+  };
+
+  const removeImage = (id: string) => {
+    setImages((prev) => prev.filter((img) => img.id !== id));
   };
 
   return (
@@ -93,6 +133,7 @@ const AddExpenseModal = ({ onClose, onAdd, members }: AddExpenseModalProps) => {
         <h2>add an expense</h2>
 
         <form onSubmit={handleSubmit}>
+          {error && <p className="modal-error">{error}</p>}
           <label htmlFor="expenseName">description</label>
           <input
             id="expenseName"
@@ -100,6 +141,37 @@ const AddExpenseModal = ({ onClose, onAdd, members }: AddExpenseModalProps) => {
             value={expenseName}
             onChange={(e) => setExpenseName(e.target.value)}
           />
+          <div className="expense-image-upload">
+            <label htmlFor="image">images</label>
+            <input
+              type="file"
+              id="image"
+              accept="image/*"
+              multiple
+              onChange={handleFileChange}
+            />
+            {images.length > 0 && (
+              <div className="expense-image-previews">
+                {images.map((img) => (
+                  <div key={img.id} className="expense-image-preview-wrap">
+                    <img
+                      src={img.preview}
+                      alt=""
+                      className="expense-image-preview"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeImage(img.id)}
+                      className="expense-image-remove"
+                      aria-label="Remove image"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
 
           <label htmlFor="amount">amount</label>
           <input

@@ -33,6 +33,7 @@ export interface Expense {
   date: Date;
   splits: Split[];
   payerId: string;
+  imageData?: string[];
 }
 
 export interface Settlement {

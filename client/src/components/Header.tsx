@@ -12,17 +12,29 @@ const Header: React.FC = () => {
         PUT IT ON MY TAB
       </div>
       <div className="header-profile">
-        <span className="header-username">{user?.name || user?.email}</span>
-        <button
-          type="button"
-          onClick={() => {
-            logout();
-            nav("/");
-          }}
-          className="header-logout"
-        >
-          Log out
-        </button>
+        {user ? (
+          <>
+            <span className="header-username">{user.name || user.email}</span>
+            <button
+              type="button"
+              onClick={() => {
+                logout();
+                nav("/");
+              }}
+              className="header-logout"
+            >
+              Log out
+            </button>
+          </>
+        ) : (
+          <button
+            type="button"
+            onClick={() => nav("/login")}
+            className="header-login"
+          >
+            Log in
+          </button>
+        )}
       </div>
     </div>
   );

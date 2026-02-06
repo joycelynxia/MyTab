@@ -35,7 +35,7 @@ router.get("/fromGroup/:groupId", ...requireGroupAccessOrClaim("admin", "partici
 // create a new expense (participant or admin)
 router.post("/", ...requireGroupAccessOrClaim("admin", "participant"), async (req: AuthRequest, res) => {
   try {
-    const { groupId, expenseName, amount, payerId, splits, receiptId } = req.body;
+    const { groupId, expenseName, amount, payerId, splits, receiptId, imageData } = req.body;
     const addedById = req.user?.id ?? null;
 
     if (!groupId || !expenseName || !amount || !payerId || !splits) {
@@ -50,6 +50,7 @@ router.post("/", ...requireGroupAccessOrClaim("admin", "participant"), async (re
         payerId,
         addedById,
         receiptId: receiptId || null,
+        imageData: Array.isArray(imageData) && imageData.length > 0 ? imageData : [],
         splits: {
           create: splits.map((split: any) => ({
             memberId: split.memberId,
@@ -115,6 +116,11 @@ router.delete("/:expenseId", authenticateToken, async (req: AuthRequest, res) =>
     for (const split of expense.splits) {
       await updateBalance(split.memberId, split.amount);
     }
+
+    // Delete splits first (foreign key constraint)
+    await prisma.split.deleteMany({
+      where: { expenseId },
+    });
 
     await prisma.expense.delete({
       where: { id: expenseId },

@@ -30,15 +30,16 @@ model GroupUser {
 }
 
 model Group {
-  id          String       @id @default(uuid())
-  groupName   String
-  shareToken  String       @unique
-  createdAt   DateTime     @default(now())
-  groupUsers  GroupUser[]
-  members     Member[]
-  expenses    Expense[]
-  settlements Settlement[]
-  receipts    Receipt[]
+  id               String       @id @default(uuid())
+  groupName        String
+  shareToken       String       @unique
+  createdAt        DateTime     @default(now())
+  creatorMemberId  String?      // guest who created the group; used for admin on link
+  groupUsers       GroupUser[]
+  members          Member[]
+  expenses         Expense[]
+  settlements      Settlement[]
+  receipts         Receipt[]
 }
 
 model Receipt {
@@ -78,6 +79,8 @@ model Expense {
   payerId     String
   payer       Member   @relation("Payer", fields: [payerId], references: [id])
   addedById   String?
+  imageData      String[]   @default([])
+  
   receiptId   String?
   receipt     Receipt? @relation(fields: [receiptId], references: [id], onDelete: SetNull)
 

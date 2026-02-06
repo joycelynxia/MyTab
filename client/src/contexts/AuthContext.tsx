@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { clearRecentGroups } from "../utils/recentGroups";
 
 interface User {
   id: string;
@@ -51,6 +52,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       setUser(data.user);
       localStorage.setItem(USER_KEY, JSON.stringify(data.user));
       localStorage.setItem(TOKEN_KEY, data.token);
+      // Link any group from claim cookie to account (cross-device sync)
+      fetch("http://localhost:3000/groups/link-claim", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${data.token}`,
+        },
+        credentials: "include",
+      }).catch(() => {});
       return { success: true };
     } catch {
       return { success: false, error: "Network error" };
@@ -77,6 +87,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       setUser(data.user);
       localStorage.setItem(USER_KEY, JSON.stringify(data.user));
       localStorage.setItem(TOKEN_KEY, data.token);
+      // Link any group from claim cookie to account (cross-device sync)
+      fetch("http://localhost:3000/groups/link-claim", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${data.token}`,
+        },
+        credentials: "include",
+      }).catch(() => {});
       return { success: true };
     } catch {
       return { success: false, error: "Network error" };
@@ -87,6 +106,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     setUser(null);
     localStorage.removeItem(USER_KEY);
     localStorage.removeItem(TOKEN_KEY);
+    clearRecentGroups();
   };
 
   return (

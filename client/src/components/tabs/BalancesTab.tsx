@@ -7,6 +7,7 @@ interface Props {
   onViewMember: (id: string) => void;
   formatBalanceString: (balance: number) => string;
   onMarkAsPaid?: (payerId: string, payeeId: string, amount: number) => Promise<void>;
+  onExportBalances?: () => void;
 }
 
 const BalancesTab: React.FC<Props> = ({
@@ -15,11 +16,16 @@ const BalancesTab: React.FC<Props> = ({
   onViewMember,
   formatBalanceString,
   onMarkAsPaid,
+  onExportBalances,
 }) => (
   <>
     <div className="toolbar">
-      <div className="toolbar-spacer" />
+      {/* <div className="toolbar-spacer" /> */}
       {onMarkAsPaid && <SettleUpButton members={members} onMarkAsPaid={onMarkAsPaid} />}
+
+      {onExportBalances && (
+        <button onClick={onExportBalances}>export balances</button>
+      )}
       {onAddMember && <button onClick={onAddMember}>+ add member</button>}
     </div>
     <div className="balances-container">

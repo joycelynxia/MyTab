@@ -1,4 +1,5 @@
 import type { Expense, Member } from "../types/types";
+import TrashIcon from "./TrashIcon";
 import { formatDate, getNameFromId } from "../utils/formatStrings";
 import "../styling/DataTable.css";
 interface Props {
@@ -39,7 +40,7 @@ const ExpensesTable: React.FC<Props> = ({ members, expenses, canDelete, onDelete
               </td>
               {canDelete && onDeleteExpense && (
                 <td>
-                  <button className="table-delete-btn" onClick={() => onDeleteExpense(expense.id)}>Delete</button>
+                  <button className="table-delete-btn" onClick={() => onDeleteExpense(expense.id)} title="Delete" aria-label="Delete"><TrashIcon /></button>
                 </td>
               )}
             </tr>

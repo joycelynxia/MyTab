@@ -28,7 +28,7 @@ app.use(cors({
 }));
 
 
-app.use(express.json({ limit: "10mb" }))
+app.use(express.json({ limit: "50mb" }))
 app.use(cookieParser(process.env.COOKIE_SECRET || "dev-cookie-secret-change-in-production"))
 
 app.use('/auth', authRoutes)

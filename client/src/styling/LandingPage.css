@@ -1,0 +1,108 @@
+.landing-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.landing-card {
+  background: white;
+  border-radius: 16px;
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+}
+
+.landing-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #333;
+  text-align: center;
+}
+
+.landing-subtitle {
+  margin: 0 0 2rem;
+  font-size: 0.95rem;
+  color: #666;
+  text-align: center;
+}
+
+.landing-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.landing-btn {
+  padding: 0.85rem 1.25rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  border: 1px solid transparent;
+}
+
+.landing-btn-primary {
+  background: #FEEAFA;
+  border-color: #e8c4e0;
+  color: #333;
+}
+
+.landing-btn-primary:hover {
+  background: #f8d4ed;
+  border-color: #e8b4dc;
+}
+
+.landing-btn-secondary {
+  background: white;
+  border-color: #e2e2e2;
+  color: #444;
+}
+
+.landing-btn-secondary:hover {
+  background: #f9f9f9;
+  border-color: #ccc;
+}
+
+.landing-join-form {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.landing-join-input {
+  flex: 1;
+  padding: 0.65rem 1rem;
+  font-size: 1rem;
+  border: 1px solid #e2e2e2;
+  border-radius: 8px;
+}
+
+.landing-join-input:focus {
+  outline: none;
+  border-color: #95a9cc;
+}
+
+.landing-login-hint {
+  margin: 0.25rem 0 0;
+  font-size: 0.9rem;
+  color: #888;
+  text-align: center;
+}
+
+.landing-link {
+  background: none;
+  border: none;
+  color: #95a9cc;
+  font-size: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.landing-link:hover {
+  color: #6b8bc7;
+}

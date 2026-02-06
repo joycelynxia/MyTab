@@ -3,6 +3,7 @@ import crypto from "crypto";
 import prisma from "../prisma";
 import {
   authenticateToken,
+  optionalAuthenticateToken,
   AuthRequest,
   requireGroupAccess,
   requireGroupAccessOrClaim,
@@ -10,7 +11,7 @@ import {
 
 const router = express.Router();
 
-// get all groups (only groups user has access to)
+// get all groups (groups user has access to via GroupUser; requires login)
 router.get("/all", authenticateToken, async (req: AuthRequest, res) => {
   try {
     const userId = req.user!.id;
@@ -23,6 +24,50 @@ router.get("/all", authenticateToken, async (req: AuthRequest, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "failed to fetch groups" });
+  }
+});
+
+// Link current claim cookie to logged-in user (creates GroupUser for cross-device access)
+router.post("/link-claim", authenticateToken, async (req: AuthRequest, res) => {
+  try {
+    const raw = (req as any).signedCookies?.mytab_claim;
+    if (!raw || typeof raw !== "string") {
+      return res.status(400).json({ error: "No group to link" });
+    }
+    const { groupId, memberId } = JSON.parse(raw) as { groupId?: string; memberId?: string };
+    if (!groupId || !memberId) {
+      return res.status(400).json({ error: "Invalid claim" });
+    }
+
+    const group = await prisma.group.findUnique({ where: { id: groupId } });
+    if (!group) {
+      return res.status(404).json({ error: "Group not found" });
+    }
+
+    const member = await prisma.member.findFirst({
+      where: { id: memberId, groupId },
+    });
+    if (!member) {
+      return res.status(400).json({ error: "Member not found in group" });
+    }
+
+    const existing = await prisma.groupUser.findUnique({
+      where: { userId_groupId: { userId: req.user!.id, groupId } },
+    });
+    if (existing) {
+      return res.json({ message: "Group already linked", groupId });
+    }
+
+    const role = group.creatorMemberId === memberId ? "admin" : "participant";
+
+    await prisma.groupUser.create({
+      data: { userId: req.user!.id, groupId, role },
+    });
+
+    res.json({ message: "Group linked to your account", groupId, role });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to link group" });
   }
 });
 
@@ -118,22 +163,70 @@ router.get("/:groupId", ...requireGroupAccessOrClaim("admin", "participant", "vi
   }
 });
 
-router.post("/", authenticateToken, async (req: AuthRequest, res) => {
+// Create group: with auth -> GroupUser; without auth -> group + members + claim cookie
+router.post("/", optionalAuthenticateToken, async (req: AuthRequest, res) => {
   try {
-    const { groupName } = req.body;
-    const userId = req.user!.id;
+    const { groupName, memberNames } = req.body;
+
+    if (!groupName?.trim()) {
+      return res.status(400).json({ error: "groupName required" });
+    }
+
+    const memberNamesArray = Array.isArray(memberNames) && memberNames.length > 0
+      ? memberNames.map((n: string) => String(n).trim()).filter(Boolean)
+      : [];
+
+    if (req.user) {
+      // Logged in: create group + GroupUser (admin)
+      const group = await prisma.group.create({
+        data: {
+          groupName: groupName.trim(),
+          shareToken: crypto.randomUUID(),
+          groupUsers: {
+            create: { userId: req.user!.id, role: "admin" },
+          },
+          ...(memberNamesArray.length > 0 && {
+            members: {
+              create: memberNamesArray.map((memberName: string) => ({ memberName })),
+            },
+          }),
+        },
+        include: { groupUsers: true, members: true },
+      });
+      return res.json(group);
+    }
+
+    // Anonymous: create group + members, set claim cookie for first member
+    if (memberNamesArray.length === 0) {
+      return res.status(400).json({ error: "memberNames required (at least one member)" });
+    }
 
     const group = await prisma.group.create({
       data: {
-        groupName,
+        groupName: groupName.trim(),
         shareToken: crypto.randomUUID(),
-        groupUsers: {
-          create: { userId, role: "admin" },
+        members: {
+          create: memberNamesArray.map((memberName: string) => ({ memberName })),
         },
       },
-      include: { groupUsers: true },
+      include: { members: true },
     });
-    res.json(group);
+
+    const firstMember = group.members[0];
+    await prisma.group.update({
+      where: { id: group.id },
+      data: { creatorMemberId: firstMember.id },
+    });
+    const payload = JSON.stringify({ groupId: group.id, memberId: firstMember.id });
+    res.cookie("mytab_claim", payload, {
+      signed: true,
+      httpOnly: true,
+      sameSite: "lax",
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+      secure: process.env.NODE_ENV === "production",
+    });
+
+    res.status(201).json(group);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "failed to create group" });

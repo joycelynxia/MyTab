@@ -1,4 +1,5 @@
 import type { Member, Settlement } from "../types/types";
+import TrashIcon from "./TrashIcon";
 import { formatDate, getNameFromId } from "../utils/formatStrings";
 import "../styling/DataTable.css";
 interface Props {
@@ -27,20 +28,23 @@ const SettlementsTable: React.FC<Props> = ({
     </tr>
   </thead>
   <tbody>
-    {settlements.map((settlement) => (
-      <tr key={settlement.id}>
+    {settlements.map((settlement) => {
+      const settlementId = settlement.id;
+      return (
+      <tr key={settlementId ?? settlement.payerId + settlement.payeeId}>
         <td>{settlement.date ? formatDate(settlement.date) : ""}</td>
         <td>{settlement.note}</td>
         <td>${settlement.amount.toFixed(2)}</td>
         <td>{getNameFromId(members, settlement.payerId)}</td>
         <td>{getNameFromId(members, settlement.payeeId)}</td>
-        {canDelete && onDeleteSettlement && settlement.id && (
+        {canDelete && onDeleteSettlement && settlementId && (
           <td>
-            <button className="table-delete-btn" onClick={() => onDeleteSettlement(settlement.id!)}>Delete</button>
+            <button className="table-delete-btn" onClick={() => onDeleteSettlement(settlementId)} title="Delete" aria-label="Delete"><TrashIcon /></button>
           </td>
         )}
       </tr>
-    ))}
+    );
+    })}
   </tbody>
 </table>
 

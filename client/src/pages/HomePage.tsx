@@ -1,58 +1,62 @@
 import { useEffect, useState } from "react";
 import AddGroupModal from "../components/modals/AddGroupModal";
 import ConfirmDeleteModal from "../components/modals/ConfirmDeleteModal";
+import TrashIcon from "../components/TrashIcon";
 import type { Group } from "../types/types";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import { getRecentGroups, removeRecentGroup } from "../utils/recentGroups";
 import "../styling/HomePage.css";
-import { createMember } from "../api/members";
+
+interface DisplayGroup extends Pick<Group, "id" | "groupName"> {
+  role?: string;
+}
 
 const HomePage: React.FC = () => {
   const [openModal, setOpenModal] = useState(false);
-  const [groupToDelete, setGroupToDelete] = useState<Group | null>(null);
-  const [groups, setGroups] = useState<Group[]>([]);
-  const [currentMembers, setCurrentMembers] = useState<string[]>([]);
+  const [groupToDelete, setGroupToDelete] = useState<DisplayGroup | null>(null);
+  const [groups, setGroups] = useState<DisplayGroup[]>([]);
   const nav = useNavigate();
+  const { user, isReady } = useAuth();
 
   useEffect(() => {
-    (async () => {
-      const { apiFetch } = await import("../api/client");
-      const res = await apiFetch("/groups/all");
-      const data = res.ok ? await res.json() : [];
-      setGroups(Array.isArray(data) ? data : []);
-    })().catch(() => setGroups([]));
-  }, []);
+    if (!isReady) return;
+
+    if (user) {
+      (async () => {
+        const { apiFetch } = await import("../api/client");
+        const res = await apiFetch("/groups/all");
+        const data = res.ok ? await res.json() : [];
+        setGroups(Array.isArray(data) ? data : []);
+      })().catch(() => setGroups([]));
+    } else {
+      setGroups(getRecentGroups());
+    }
+  }, [user, isReady]);
 
   const addGroup = async (groupName: string, memberNames: string[]) => {
     const { apiFetch } = await import("../api/client");
     const res = await apiFetch("/groups", {
       method: "POST",
-      body: JSON.stringify({ groupName }),
+      body: JSON.stringify({ groupName, memberNames }),
     });
 
     if (!res.ok) {
-      throw new Error("failed to create group");
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error ?? "Failed to create group");
     }
 
     const data = await res.json();
-    const groupId = data.id;
-
-    memberNames.forEach((m) => {
-      let memberId = String(createMember(groupId, m));
-      setCurrentMembers([...currentMembers, memberId]);
-    });
-
-    const newGroup: Group & { role?: string } = {
-      id: groupId,
-      groupName,
-      members: currentMembers,
-      role: "admin",
+    const newGroup: DisplayGroup = {
+      id: data.id,
+      groupName: data.groupName ?? groupName,
+      role: data.groupUsers?.length ? "admin" : undefined,
     };
 
-    console.log(newGroup);
-    // add newGroup to backend
-
-    setGroups([...groups, newGroup]);
-    // setOpenModal(false);
+    setGroups((prev) => {
+      const filtered = prev.filter((g) => g.id !== newGroup.id);
+      return [newGroup, ...filtered];
+    });
 
     nav(`/groups/${data.id}`);
   };
@@ -63,57 +67,64 @@ const HomePage: React.FC = () => {
       const res = await apiFetch(`/groups/${groupId}`, { method: "DELETE" });
 
       if (!res.ok) {
-        throw new Error("failed to delete group");
+        throw new Error("Failed to delete group");
       }
-      setGroups((prevGroups) =>
-        prevGroups.filter((group) => group.id != groupId)
-      );
+      setGroups((prev) => prev.filter((g) => g.id !== groupId));
+      removeRecentGroup(groupId);
       setGroupToDelete(null);
     } catch (error) {
-      console.error("error deleting group", error);
+      console.error("Error deleting group", error);
     }
   };
 
+  const showDelete = (g: DisplayGroup) => user && g.role === "admin";
+
   return (
     <div className="homepage-container">
-      {groups ? (
-        <div>
-          <div className="title-create">
-            <div className="title">my tabs</div>
-            <button className="new-btn" onClick={() => setOpenModal(true)}>new +</button>
-          </div>
+      <div>
+        <div className="title-create">
+          <div className="title">my tabs</div>
+          <button className="new-btn" onClick={() => setOpenModal(true)}>
+            new +
+          </button>
+        </div>
 
+        {groups.length > 0 ? (
           <div className="groups-container">
-            {groups.map((group: Group & { role?: string }) => (
+            {groups.map((group) => (
               <div
                 key={group.id}
                 className="group-item"
                 onClick={() => nav(`/groups/${group.id}`)}
               >
                 <div className="group-title">{group.groupName}</div>
-                {group.role === "admin" && (
+                {showDelete(group) && (
                   <button
                     className="delete-btn"
                     onClick={(e) => {
                       e.stopPropagation();
                       setGroupToDelete(group);
                     }}
+                    title="Delete group"
+                    aria-label="Delete group"
                   >
-                    x
+                    <TrashIcon size={14} />
                   </button>
                 )}
               </div>
             ))}
           </div>
-        </div>
-      ) : (
-        <div>
-          <h1>let's settle this now</h1>
-          <h3>track tabs. split bills. stay friends</h3>
-        </div>
-      )}
-
-      {/* <CreateGroupButton /> */}
+        ) : (
+          <div className="homepage-empty">
+            <p>Create or join a group to get started.</p>
+            {!user && (
+              <p className="homepage-hint">
+                Log in to access your groups from any device.
+              </p>
+            )}
+          </div>
+        )}
+      </div>
 
       {openModal && (
         <AddGroupModal onClose={() => setOpenModal(false)} onAdd={addGroup} />

@@ -51,10 +51,14 @@
 }
 
 .delete-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background-color: white;
   /* border: 1px solid lightgray; */
   border-radius: 100%;
   width: 25px;
+  padding: 0;
 }
 
 .delete-btn:hover {
@@ -71,4 +75,18 @@
 
 .new-btn:hover {
   background-color: rgb(255, 239, 252);
+}
+
+.homepage-empty {
+  color: #666;
+  margin-top: 2rem;
+}
+
+.homepage-empty p {
+  margin: 0.5rem 0;
+}
+
+.homepage-hint {
+  font-size: 0.9rem;
+  color: #888;
 }

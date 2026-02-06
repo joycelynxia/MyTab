@@ -1,27 +1,94 @@
-cd client
-npm run dev
+# Put it on my tab
 
-cd server
-npm run dev
-npx prisma studio 
+Track tabs. Split bills. Stay friends. A bill-splitting app for groups.
 
-in terminal:
+## Tech stack
+
+- **Frontend:** React, Vite, TypeScript, React Router
+- **Backend:** Express, TypeScript
+- **Database:** PostgreSQL with Prisma ORM
+- **Auth:** JWT (optional login; guest mode supported)
+
+## Prerequisites
+
+- Node.js 18+
+- PostgreSQL
+
+## Setup
+
+1. Clone and install dependencies:
+  ```bash
+   npm install
+   cd client && npm install && cd ..
+   cd server && npm install && cd ..
+  ```
+2. Create `server/.env`:
+  ```
+   DATABASE_URL="postgresql://joyce:password@localhost:5432/mytab_app"
+   JWT_SECRET="your-secret-key"
+   COOKIE_SECRET="your-cookie-secret"
+  ```
+   Adjust `DATABASE_URL` for your PostgreSQL user and database.
+3. For receipt scanning, add `google-credentials.json` to `server/` (see [Google Cloud Vision](https://cloud.google.com/vision/docs/setup)).
+4. Run migrations:
+  ```bash
+   cd server
+   npx prisma migrate dev
+  ```
+
+## Development
+
+Run both client and server (use two terminals):
+
+```bash
+# Terminal 1 – frontend (Vite dev server on http://localhost:5173)
+cd client && npm run dev
+
+# Terminal 2 – backend (API on http://localhost:3000)
+cd server && npm run dev
+```
+
+### Database
+
+Connect to the database:
+
+```bash
 psql -U joyce -h localhost -d mytab_app
+```
 
-when changing prisma schema
+Prisma Studio (browse data):
+
+```bash
+cd server && npx prisma studio
+```
+
+### Schema changes
+
+```bash
+cd server
 npx prisma migrate dev --name migration_name
-npx prisma generate 
-npx prisma migrate reset (for hard resets in development only)
-----------------------
-features to add
-balance tab
-- click on user to see all expenses and settlements
+npx prisma generate
+```
 
-expense tab
-- click on expense to view full details of split amount, date, etc
-- add uneven split by amount and percentage 
+Hard reset (development only):
 
-edit expenses
-search bar
-itemized breakdown
-scan and parse receipt 
+```bash
+npx prisma migrate reset
+```
+
+## Features
+
+- Create and join groups via invite link
+- Add expenses with even, amount-based, or percentage splits
+- View balances and settlements
+- Optional login for cross-device sync; guest mode supported
+- Export expenses to Excel
+
+## Roadmap
+
+- **Balance tab:** Click on user to see all expenses and settlements
+- **Expense tab:** View full expense details (split amounts, date, etc.)
+- **Edit expenses**
+- **Search bar**
+- **Itemized breakdown**
+

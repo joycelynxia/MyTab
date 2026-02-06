@@ -13,6 +13,7 @@ import AddExpenseFromReceiptModal from "../components/modals/AddExpenseFromRecei
 import { useParams } from "react-router-dom";
 import { createMember } from "../api/members";
 import BalancesTab from "../components/tabs/BalancesTab";
+import MemberBalanceDetailModal from "../components/modals/MemberBalanceDetailModal";
 import SettlementsTab from "../components/tabs/SettlementsTab";
 import ExpensesTab from "../components/tabs/ExpensesTab";
 import {
@@ -22,7 +23,7 @@ import {
 import ExpensesTable from "../components/ExpensesTable";
 import SettlementsTable from "../components/SettlementsTable";
 import ViewToggle from "../components/ViewToggle";
-import { exportExpensesToExcel } from "../utils/exportToExcel";
+import { exportExpensesToExcel, exportBalancesToExcel } from "../utils/exportToExcel";
 import { formatDate } from "../utils/formatStrings";
 
 type GroupRole = "admin" | "participant" | "viewer";
@@ -51,6 +52,7 @@ const GroupPage: React.FC = () => {
   const [openMemberView, setOpenMemberView] = useState(false);
   const [openExpenseView, setOpenExpenseView] = useState(false);
   const [openSettlementView, setOpenSettlementView] = useState(false);
+  const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
 
   const addMember = (memberName: string) => {
     console.log("adding new member to group");
@@ -75,12 +77,14 @@ const GroupPage: React.FC = () => {
     date,
     payerId,
     splits,
+    imageData,
   }: {
     expenseName: string;
     amount: number;
     date: Date;
     payerId: string;
     splits: Split[];
+    imageData?: string[];
   }) => {
     console.log("adding new expense to group");
 
@@ -88,7 +92,7 @@ const GroupPage: React.FC = () => {
       const { apiFetch } = await import("../api/client");
       const res = await apiFetch("/expenses", {
         method: "POST",
-        body: JSON.stringify({ groupId, expenseName, amount, payerId, splits }),
+        body: JSON.stringify({ groupId, expenseName, amount, payerId, splits, imageData }),
       });
 
       const data = await res.json();
@@ -97,13 +101,13 @@ const GroupPage: React.FC = () => {
       const newExpense: Expense = {
         id: data.id,
         groupId: groupId!,
-        expenseName,
-        amount,
-        date,
-        splits,
-        payerId,
+        expenseName: data.expenseName ?? expenseName,
+        amount: data.amount ?? amount,
+        date: data.date ?? date,
+        splits: data.splits ?? splits,
+        payerId: data.payerId ?? payerId,
+        imageData: data.imageData ?? imageData,
       };
-      console.log("SPLITS:", splits);
       setExpenses([...expenses, newExpense]);
       setMembers(updateBalancesAfterExpense(members, payerId, amount, splits));
     } catch (error) {
@@ -257,8 +261,11 @@ const GroupPage: React.FC = () => {
   };
 
   const handleViewMember = (memberId: string) => {
-    console.log("viewing details for member");
+    setSelectedMemberId(memberId);
   };
+  const selectedMember = selectedMemberId
+    ? members.find((m) => m.id === selectedMemberId) ?? null
+    : null;
 
   const inviteLink = group?.shareToken
     ? `${window.location.origin}/groups/join/${group.shareToken}`
@@ -298,10 +305,12 @@ const GroupPage: React.FC = () => {
           <BalancesTab
             members={members}
             onAddMember={canEdit ? () => setOpenMemberModal(true) : undefined}
-            onViewMember={() => {}}
+            onViewMember={handleViewMember}
             formatBalanceString={formatBalanceString}
             onMarkAsPaid={canEdit ? (payerId, payeeId, amount) =>
               createSettlement(payerId, payeeId, amount, "Settle up") : undefined}
+            onExportBalances={() =>
+              exportBalancesToExcel(members, expenses, settlements, group?.groupName)}
           />
         </div>
       )}
@@ -318,14 +327,14 @@ const GroupPage: React.FC = () => {
               />
             </div>
             <ViewToggle view={expenseView} onViewChange={setExpenseView} />
-            <button onClick={() => exportExpensesToExcel(expenses, members)}>
+            {/* <button onClick={() => exportExpensesToExcel(expenses, members)}>
               export
-            </button>
+            </button> */}
             {canEdit && (
               <>
-                <button onClick={() => setOpenReceiptModal(true)}>
+                {/* <button onClick={() => setOpenReceiptModal(true)}>
                   add from receipt
-                </button>
+                </button> */}
                 <button onClick={() => setOpenExpenseModal(true)}>
                   + new expense
                 </button>
@@ -401,13 +410,14 @@ const GroupPage: React.FC = () => {
 
       {openExpenseModal && (
         <AddExpenseModal
-          onAdd={(expenseName, amount, date, payerId, splitBetween) =>
+          onAdd={(expenseName, amount, date, payerId, splitBetween, imageData) =>
             addExpense({
               expenseName,
               amount,
               date,
               payerId,
               splits: splitBetween,
+              imageData,
             })
           }
           onClose={() => setOpenExpenseModal(false)}
@@ -439,6 +449,17 @@ const GroupPage: React.FC = () => {
           }
           onClose={() => setOpenSettlementModal(false)}
           members={members}
+        />
+      )}
+
+      {selectedMember && (
+        <MemberBalanceDetailModal
+          member={selectedMember}
+          members={members}
+          expenses={expenses}
+          settlements={settlements}
+          formatBalanceString={formatBalanceString}
+          onClose={() => setSelectedMemberId(null)}
         />
       )}
     </div>

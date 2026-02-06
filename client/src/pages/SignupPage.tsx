@@ -3,13 +3,15 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import "../styling/LoginPage.css";
 
-const LoginPage: React.FC = () => {
+const SignupPage: React.FC = () => {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const { user, login } = useAuth();
+  const { user, register } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,15 +24,23 @@ const LoginPage: React.FC = () => {
     setLoading(true);
 
     try {
-      if (!email.trim() || !password) {
-        setError("Please enter email and password");
+      if (!name.trim() || !email.trim() || !password || !confirmPassword) {
+        setError("Please fill in all fields");
         return;
       }
-      const result = await login(email.trim(), password);
+      if (password !== confirmPassword) {
+        setError("Passwords do not match");
+        return;
+      }
+      if (password.length < 6) {
+        setError("Password must be at least 6 characters");
+        return;
+      }
+      const result = await register(name.trim(), email.trim(), password);
       if (result.success) {
         navigate("/home");
       } else {
-        setError(result.error || "Invalid email or password");
+        setError(result.error || "An account with this email already exists");
       }
     } finally {
       setLoading(false);
@@ -42,11 +52,23 @@ const LoginPage: React.FC = () => {
       <div className="login-card">
         <h1 className="login-title">Put it on my tab</h1>
         <p className="login-subtitle">
-          Welcome back. Log in to continue.
+          Create an account to get started.
         </p>
 
         <form onSubmit={handleSubmit} className="login-form">
           {error && <p className="login-error">{error}</p>}
+
+          <div className="form-group">
+            <label htmlFor="name">Name</label>
+            <input
+              id="name"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Your name"
+              autoComplete="name"
+            />
+          </div>
 
           <div className="form-group">
             <label htmlFor="email">Email</label>
@@ -68,18 +90,30 @@ const LoginPage: React.FC = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              autoComplete="current-password"
+              autoComplete="new-password"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="confirmPassword">Confirm password</label>
+            <input
+              id="confirmPassword"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="••••••••"
+              autoComplete="new-password"
             />
           </div>
 
           <button type="submit" className="login-submit" disabled={loading}>
-            {loading ? "Please wait..." : "Log in"}
+            {loading ? "Please wait..." : "Create account"}
           </button>
 
           <p className="login-switch">
-            Don&apos;t have an account?{" "}
-            <Link to="/signup" className="login-link">
-              Sign up
+            Already have an account?{" "}
+            <Link to="/login" className="login-link">
+              Log in
             </Link>
           </p>
 
@@ -104,4 +138,4 @@ const LoginPage: React.FC = () => {
   );
 };
 
-export default LoginPage;
+export default SignupPage;

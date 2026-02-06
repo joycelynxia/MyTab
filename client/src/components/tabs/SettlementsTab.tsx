@@ -1,5 +1,6 @@
 import type { Settlement } from "../../types/types";
 import { FaArrowRight } from "react-icons/fa";
+import TrashIcon from "../TrashIcon";
 
 interface Props {
   settlements: Settlement[];
@@ -17,8 +18,10 @@ const SettlementsTab: React.FC<Props> = ({
   <div className="settlements-container">
     <ul>
       {settlements.length > 0
-        ? settlements.map((settlement) => (
-            <div key={settlement.id} className="settlement-container item">
+        ? settlements.map((settlement) => {
+            const settlementId = settlement.id;
+            return (
+            <div key={settlementId ?? settlement.payerId + settlement.payeeId} className="settlement-container item">
               <div>
                 <h4>{settlement.note}</h4>
                 <div className="transfer-participants">
@@ -30,12 +33,13 @@ const SettlementsTab: React.FC<Props> = ({
 
               <div className="expense-item-actions">
                 <h4>${settlement.amount}</h4>
-                {canDelete && onDeleteSettlement && settlement.id && (
-                  <button className="table-delete-btn" onClick={() => onDeleteSettlement(settlement.id)}>Delete</button>
+                {canDelete && onDeleteSettlement && settlementId && (
+                  <button className="table-delete-btn" onClick={() => onDeleteSettlement(settlementId)} title="Delete" aria-label="Delete"><TrashIcon /></button>
                 )}
               </div>
             </div>
-          ))
+          );
+          })
         : "no settlements recorded"}
     </ul>
   </div>
