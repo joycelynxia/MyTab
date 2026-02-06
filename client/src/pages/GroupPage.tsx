@@ -9,7 +9,6 @@ import { useSettlements } from "../hooks/useSettlements";
 import AddMemberModal from "../components/modals/AddMemberModal";
 import AddSettlementModal from "../components/modals/AddSettlementModal";
 import AddExpenseModal from "../components/modals/AddExpenseModal";
-import AddExpenseFromReceiptModal from "../components/modals/AddExpenseFromReceiptModal";
 import { useParams } from "react-router-dom";
 import { createMember } from "../api/members";
 import BalancesTab from "../components/tabs/BalancesTab";
@@ -23,7 +22,8 @@ import {
 import ExpensesTable from "../components/ExpensesTable";
 import SettlementsTable from "../components/SettlementsTable";
 import ViewToggle from "../components/ViewToggle";
-import { exportExpensesToExcel, exportBalancesToExcel } from "../utils/exportToExcel";
+import { apiFetch } from "../api/client";
+import { exportBalancesToExcel } from "../utils/exportToExcel";
 import { formatDate } from "../utils/formatStrings";
 
 type GroupRole = "admin" | "participant" | "viewer";
@@ -42,16 +42,12 @@ const GroupPage: React.FC = () => {
 
   const [openMemberModal, setOpenMemberModal] = useState(false);
   const [openExpenseModal, setOpenExpenseModal] = useState(false);
-  const [openReceiptModal, setOpenReceiptModal] = useState(false);
   const [openSettlementModal, setOpenSettlementModal] = useState(false);
 
   const [expenseView, setExpenseView] = useState<"list" | "grid">("list");
   const [settlementView, setSettlementView] = useState<"list" | "grid">("list");
   const [expenseSearch, setExpenseSearch] = useState("");
   const [settlementSearch, setSettlementSearch] = useState("");
-  const [openMemberView, setOpenMemberView] = useState(false);
-  const [openExpenseView, setOpenExpenseView] = useState(false);
-  const [openSettlementView, setOpenSettlementView] = useState(false);
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
 
   const addMember = (memberName: string) => {
@@ -89,7 +85,6 @@ const GroupPage: React.FC = () => {
     console.log("adding new expense to group");
 
     try {
-      const { apiFetch } = await import("../api/client");
       const res = await apiFetch("/expenses", {
         method: "POST",
         body: JSON.stringify({ groupId, expenseName, amount, payerId, splits, imageData }),
@@ -125,7 +120,6 @@ const GroupPage: React.FC = () => {
   ) => {
     if (Math.round(amount * 100) === 0) return;
 
-    const { apiFetch } = await import("../api/client");
     const res = await apiFetch("/settlements", {
       method: "POST",
       body: JSON.stringify({ groupId, payerId, payeeId, amount, note }),
@@ -154,7 +148,6 @@ const GroupPage: React.FC = () => {
 
   const deleteExpense = async (expenseId: string) => {
     try {
-      const { apiFetch } = await import("../api/client");
       const res = await apiFetch(`/expenses/${expenseId}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Failed to delete");
       const expense = expenses.find((e) => e.id === expenseId);
@@ -176,7 +169,6 @@ const GroupPage: React.FC = () => {
 
   const deleteSettlement = async (settlementId: string) => {
     try {
-      const { apiFetch } = await import("../api/client");
       const res = await apiFetch(`/settlements/${settlementId}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Failed to delete");
       const settlement = settlements.find((s) => s.id === settlementId);
@@ -424,24 +416,7 @@ const GroupPage: React.FC = () => {
           members={members}
         />
       )}
-
-      {openReceiptModal && groupId && (
-        <AddExpenseFromReceiptModal
-          onAdd={(expenseName, amount, date, payerId, splits) =>
-            addExpense({
-              expenseName,
-              amount,
-              date,
-              payerId,
-              splits,
-            })
-          }
-          onClose={() => setOpenReceiptModal(false)}
-          members={members}
-          groupId={groupId}
-        />
-      )}
-
+ 
       {openSettlementModal && (
         <AddSettlementModal
           onAdd={(payerId, payeeId, amount, note) =>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Expense } from "../types/types";
+import { apiFetch } from "../api/client";
 
 export const useExpenses = (groupId?: string) => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -9,7 +10,6 @@ export const useExpenses = (groupId?: string) => {
 
     const fetchExpenses = async () => {
       try {
-        const { apiFetch } = await import("../api/client");
         const res = await apiFetch(`/expenses/fromGroup/${groupId}`);
         if (!res.ok) throw new Error("Failed to fetch expenses");
         const data = await res.json();

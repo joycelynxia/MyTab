@@ -4,6 +4,7 @@ import ConfirmDeleteModal from "../components/modals/ConfirmDeleteModal";
 import TrashIcon from "../components/TrashIcon";
 import type { Group } from "../types/types";
 import { useNavigate } from "react-router-dom";
+import { apiFetch } from "../api/client";
 import { useAuth } from "../contexts/AuthContext";
 import { getRecentGroups, removeRecentGroup } from "../utils/recentGroups";
 import "../styling/HomePage.css";
@@ -24,7 +25,6 @@ const HomePage: React.FC = () => {
 
     if (user) {
       (async () => {
-        const { apiFetch } = await import("../api/client");
         const res = await apiFetch("/groups/all");
         const data = res.ok ? await res.json() : [];
         setGroups(Array.isArray(data) ? data : []);
@@ -35,7 +35,6 @@ const HomePage: React.FC = () => {
   }, [user, isReady]);
 
   const addGroup = async (groupName: string, memberNames: string[]) => {
-    const { apiFetch } = await import("../api/client");
     const res = await apiFetch("/groups", {
       method: "POST",
       body: JSON.stringify({ groupName, memberNames }),
@@ -63,7 +62,6 @@ const HomePage: React.FC = () => {
 
   const deleteGroup = async (groupId: string) => {
     try {
-      const { apiFetch } = await import("../api/client");
       const res = await apiFetch(`/groups/${groupId}`, { method: "DELETE" });
 
       if (!res.ok) {

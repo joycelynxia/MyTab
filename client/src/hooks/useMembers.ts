@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Member } from "../types/types";
+import { apiFetch } from "../api/client";
 
 export const useMembers = (groupId?: string) => {
   const [members, setMembers] = useState<Member[]>([]);
@@ -8,7 +9,7 @@ export const useMembers = (groupId?: string) => {
     if (!groupId) return;
     const fetchMembers = async () => {
       try {
-        const res = await (await import("../api/client")).apiFetch(`/members/fromGroup/${groupId}`);
+        const res = await apiFetch(`/members/fromGroup/${groupId}`);
         if (!res.ok) throw new Error("Failed to fetch members");
         const data = await res.json();
         setMembers(Array.isArray(data) ? data : []);

@@ -1,31 +1,8 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styling/LandingPage.css";
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
-  const [joinInput, setJoinInput] = useState("");
-
-  const extractShareToken = (input: string): string | null => {
-    const trimmed = input.trim();
-    if (!trimmed) return null;
-    // Full URL: .../groups/join/TOKEN or .../join/TOKEN
-    const match = trimmed.match(/\/groups\/join\/([a-zA-Z0-9-]+)|\/join\/([a-zA-Z0-9-]+)/);
-    if (match) return match[1] || match[2] || null;
-    // Assume raw token (UUID format)
-    if (/^[a-zA-Z0-9-]{36}$/.test(trimmed)) return trimmed;
-    return null;
-  };
-
-  const handleJoin = (e: React.FormEvent) => {
-    e.preventDefault();
-    const token = extractShareToken(joinInput);
-    if (token) {
-      navigate(`/groups/join/${token}`);
-    } else {
-      setJoinInput("");
-    }
-  };
 
   return (
     <div className="landing-page">

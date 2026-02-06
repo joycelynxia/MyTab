@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FaArrowRight, FaCheck, FaTimes } from "react-icons/fa";
+import { FaArrowRight, FaCheck } from "react-icons/fa";
 import type { Member, Settlement } from "../types/types";
 import { getNameFromId } from "../utils/formatStrings";
 import "../styling/SettleUp.css";

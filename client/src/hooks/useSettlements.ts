@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Settlement } from "../types/types";
+import { apiFetch } from "../api/client";
 
 export const useSettlements = (groupId?: string) => {
   const [settlements, setSettlements] = useState<Settlement[]>([]);
@@ -9,7 +10,6 @@ export const useSettlements = (groupId?: string) => {
 
     const fetchSettlements = async () => {
       try {
-        const { apiFetch } = await import("../api/client");
         const res = await apiFetch(`/settlements/fromGroup/${groupId}`);
         if (!res.ok) throw new Error("Failed to fetch settlements");
         const data = await res.json();

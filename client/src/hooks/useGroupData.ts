@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { Group } from "../types/types";
 import { addRecentGroup } from "../utils/recentGroups";
+import { apiFetch } from "../api/client";
 
 export const useGroupData = (groupId?: string) => {
   const [group, setGroup] = useState<Group>();
@@ -9,7 +10,7 @@ export const useGroupData = (groupId?: string) => {
     if (!groupId) return;
     const fetchGroup = async () => {
       try {
-        const res = await (await import("../api/client")).apiFetch(`/groups/${groupId}`);
+        const res = await apiFetch(`/groups/${groupId}`);
         if (!res.ok) throw new Error("Failed to fetch group");
         const data = await res.json();
         setGroup(data);
