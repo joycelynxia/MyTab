@@ -1,8 +1,8 @@
-# Put it on my tab
+# Put it on My Tab
 
 Track tabs. Split bills. Stay friends. A bill-splitting app for groups.
 
-**[Live app](mytabapp.vercel.app)**
+**[Live app](https://mytabapp.vercel.app)**
 
 ## Tech stack
 
