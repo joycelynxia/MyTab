@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { API_BASE } from "../api/client";
 import "../styling/GroupJoinPage.css";
-
-const API_BASE = "http://localhost:3000";
 
 interface Member {
   id: string;

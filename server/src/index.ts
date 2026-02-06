@@ -20,8 +20,9 @@ const prisma = new PrismaClient()
 //   methods: ['GET', 'POST', 'PUT', 'DELETE'],
 // }));
 
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 app.use(cors({
-  origin: 'http://localhost:5173', // your frontend URL
+  origin: FRONTEND_URL,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true

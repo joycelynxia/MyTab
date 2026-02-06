@@ -76,6 +76,40 @@ Hard reset (development only):
 npx prisma migrate reset
 ```
 
+## Deployment
+
+### Frontend (Vercel)
+
+- Set **Root Directory** to `client`
+- Add env var: `VITE_API_URL` = your backend URL (e.g. `https://yourapp.railway.app`)
+
+### Backend + database (Railway or Render)
+
+**1. Create a PostgreSQL database**
+
+- **Railway:** New Project → Add PostgreSQL. Copy the `DATABASE_URL`.
+- **Render:** New → PostgreSQL. Copy the Internal Database URL (or External for Railway).
+
+**2. Deploy the backend**
+
+- **Railway:** New Project → Add service → Deploy from GitHub. Set **Root Directory** to `server`. Add env vars:
+  - `DATABASE_URL` (from step 1)
+  - `JWT_SECRET` (random string)
+  - `COOKIE_SECRET` (random string)
+  - `FRONTEND_URL` = your Vercel URL (e.g. `https://yourapp.vercel.app`)
+- **Render:** New → Web Service → Connect repo. Root Directory: `server`. Build: `npm run build`. Start: `npm start`. Add the same env vars.
+
+**3. Run migrations**
+
+```bash
+cd server
+DATABASE_URL="your-production-database-url" npx prisma migrate deploy
+```
+
+**4. Update frontend**
+
+- In Vercel, set `VITE_API_URL` to your backend URL. Redeploy the frontend.
+
 ## Features
 
 - Create and join groups via invite link

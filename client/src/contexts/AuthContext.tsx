@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { API_BASE } from "../api/client";
 import { clearRecentGroups } from "../utils/recentGroups";
 
 interface User {
@@ -42,7 +43,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
-      const res = await fetch("http://localhost:3000/auth/login", {
+      const res = await fetch(`${API_BASE}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email.trim(), password }),
@@ -53,7 +54,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       localStorage.setItem(USER_KEY, JSON.stringify(data.user));
       localStorage.setItem(TOKEN_KEY, data.token);
       // Link any group from claim cookie to account (cross-device sync)
-      fetch("http://localhost:3000/groups/link-claim", {
+      fetch(`${API_BASE}/groups/link-claim`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -73,7 +74,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     password: string
   ): Promise<{ success: boolean; error?: string }> => {
     try {
-      const res = await fetch("http://localhost:3000/auth/register", {
+      const res = await fetch(`${API_BASE}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -88,7 +89,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       localStorage.setItem(USER_KEY, JSON.stringify(data.user));
       localStorage.setItem(TOKEN_KEY, data.token);
       // Link any group from claim cookie to account (cross-device sync)
-      fetch("http://localhost:3000/groups/link-claim", {
+      fetch(`${API_BASE}/groups/link-claim`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

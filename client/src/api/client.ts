@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:3000";
+export const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 function getToken(): string | null {
   return localStorage.getItem("mytab_token");
